@@ -7,9 +7,7 @@
   <meta name="theme-color" content="#2563eb">
   <link rel="manifest" href="manifest.json">
   <style>
-    :root {
-      color-scheme: light dark;
-    }
+    :root { color-scheme: light dark; }
     body {
       margin: 0;
       padding: 0;
@@ -28,206 +26,99 @@
       background-size: 40px 40px;
       color: #e5e7eb;
     }
-    .header {
-      text-align: center;
-      padding: 1.2rem 1rem 0.5rem;
-    }
+    .header { text-align: center; padding: 1.2rem 1rem 0.5rem; }
     .header img {
-      width: 140px;
-      height: 140px;
-      border-radius: 50%;
-      object-fit: contain;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.09);
-      background: #ffffff;
+      width: 140px; height: 140px; border-radius: 50%; object-fit: contain;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.09); background: #ffffff;
     }
     body.dark .header img {
-      background: #020617;
-      box-shadow: 0 4px 12px rgba(15,23,42,0.7);
+      background: #020617; box-shadow: 0 4px 12px rgba(15,23,42,0.7);
     }
     .brand-title {
-      font-size: 0.8rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-top: 0.5rem;
-      color: #6b7280;
+      font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+      margin-top: 0.5rem; color: #6b7280;
     }
-    body.dark .brand-title {
-      color: #9ca3af;
-    }
+    body.dark .brand-title { color: #9ca3af; }
     .title {
-      font-size: 1.4rem;
-      margin-top: 0.15rem;
-      font-weight: 700;
-      color: #111827;
+      font-size: 1.4rem; margin-top: 0.15rem; font-weight: 700; color: #111827;
     }
-    body.dark .title {
-      color: #e5e7eb;
-    }
-    .subtitle {
-      font-size: 0.85rem;
-      color: #4b5563;
-      margin-top: 0.15rem;
-    }
-    body.dark .subtitle {
-      color: #9ca3af;
-    }
-    .app {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 0 1rem 3.5rem;
-    }
+    body.dark .title { color: #e5e7eb; }
+    .subtitle { font-size: 0.85rem; color: #4b5563; margin-top: 0.15rem; }
+    body.dark .subtitle { color: #9ca3af; }
+    .app { max-width: 900px; margin: 0 auto; padding: 0 1rem 3.5rem; }
     .card {
-      background: rgba(255,255,255,0.96);
-      border-radius: 16px;
-      padding: 1rem;
-      margin-top: 0.75rem;
-      box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+      background: rgba(255,255,255,0.96); border-radius: 16px; padding: 1rem;
+      margin-top: 0.75rem; box-shadow: 0 10px 30px rgba(15,23,42,0.08);
       backdrop-filter: blur(8px);
     }
     body.dark .card {
-      background: rgba(15,23,42,0.96);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      background: rgba(15,23,42,0.96); box-shadow: 0 10px 30px rgba(0,0,0,0.7);
       border: 1px solid #1f2937;
     }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 0.75rem;
-    }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
     @media (min-width: 700px) {
-      .grid-2 {
-        grid-template-columns: repeat(2, minmax(0,1fr));
-      }
-      .grid-3 {
-        grid-template-columns: repeat(3, minmax(0,1fr));
-      }
+      .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
     }
     label {
-      font-size: 0.82rem;
-      font-weight: 600;
-      display: block;
-      margin-bottom: 0.2rem;
+      font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 0.2rem;
       color: #374151;
     }
-    body.dark label {
-      color: #e5e7eb;
-    }
+    body.dark label { color: #e5e7eb; }
     input, select {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 0.45rem 0.5rem;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-      font-size: 0.9rem;
-      background: #ffffff;
-      color: #111827;
+      width: 100%; box-sizing: border-box; padding: 0.45rem 0.5rem;
+      border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.9rem;
+      background: #ffffff; color: #111827;
     }
     body.dark input, body.dark select {
-      background: #020617;
-      border-color: #4b5563;
-      color: #e5e7eb;
+      background: #020617; border-color: #4b5563; color: #e5e7eb;
     }
     input:focus, select:focus {
-      outline: none;
-      border-color: #2563eb;
+      outline: none; border-color: #2563eb;
       box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
     }
     body.dark input:focus, body.dark select:focus {
-      border-color: #60a5fa;
-      box-shadow: 0 0 0 1px rgba(96,165,250,0.4);
+      border-color: #60a5fa; box-shadow: 0 0 0 1px rgba(96,165,250,0.4);
     }
     .primary-btn {
-      margin-top: 1rem;
-      width: 100%;
-      padding: 0.8rem;
-      border-radius: 999px;
-      border: none;
-      font-size: 1rem;
-      font-weight: 600;
-      background: #2563eb;
-      color: #ffffff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      cursor: pointer;
+      margin-top: 1rem; width: 100%; padding: 0.8rem; border-radius: 999px;
+      border: none; font-size: 1rem; font-weight: 600; background: #2563eb;
+      color: #ffffff; display: inline-flex; align-items: center;
+      justify-content: center; gap: 0.4rem; cursor: pointer;
     }
-    .primary-btn span.icon {
-      font-size: 1.1rem;
-    }
-    .primary-btn:active {
-      opacity: 0.9;
-    }
+    .primary-btn span.icon { font-size: 1.1rem; }
     .btn-secondary {
-      margin-top: 0.75rem;
-      width: 100%;
-      padding: 0.7rem;
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      background: #ffffff;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #374151;
-      cursor: pointer;
+      margin-top: 0.75rem; width: 100%; padding: 0.7rem; border-radius: 999px;
+      border: 1px solid #d1d5db; background: #ffffff; font-size: 0.9rem;
+      font-weight: 500; color: #374151; cursor: pointer;
     }
     body.dark .btn-secondary {
-      background: #020617;
-      border-color: #4b5563;
-      color: #e5e7eb;
+      background: #020617; border-color: #4b5563; color: #e5e7eb;
     }
-    .toolbar {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .toolbar button {
-      flex: 1 1 48%;
-    }
+    .toolbar { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+    .toolbar button { flex: 1 1 48%; }
     .toggle-dark {
-      position: fixed;
-      top: 0.75rem;
-      right: 0.75rem;
-      z-index: 40;
-      padding: 0.45rem 0.7rem;
-      font-size: 0.8rem;
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      background: #ffffff;
-      color: #111827;
+      position: fixed; top: 0.75rem; right: 0.75rem; z-index: 40;
+      padding: 0.45rem 0.7rem; font-size: 0.8rem; border-radius: 999px;
+      border: 1px solid #d1d5db; background: #ffffff; color: #111827;
       cursor: pointer;
     }
     body.dark .toggle-dark {
-      background: #020617;
-      color: #e5e7eb;
-      border-color: #4b5563;
+      background: #020617; color: #e5e7eb; border-color: #4b5563;
     }
     .result-card {
-      border-radius: 16px;
-      padding: 0.75rem;
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      border: 1px solid #e5e7eb;
+      border-radius: 16px; padding: 0.75rem; margin-top: 0.5rem;
+      font-size: 0.9rem; border: 1px solid #e5e7eb;
     }
-    body.dark .result-card {
-      border-color: #374151;
-    }
+    body.dark .result-card { border-color: #374151; }
     .cs { border-left: 4px solid #2563eb; }
     .ha { border-left: 4px solid #059669; }
     .gel { border-left: 4px solid #7c3aed; }
-    .preferred {
-      box-shadow: 0 0 0 2px #bbf7d0;
-    }
-    body.dark .preferred {
-      box-shadow: 0 0 0 2px #22c55e;
-    }
+    .preferred { box-shadow: 0 0 0 2px #bbf7d0; }
+    body.dark .preferred { box-shadow: 0 0 0 2px #22c55e; }
     .band-pill {
-      display: inline-block;
-      padding: 0.1rem 0.5rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-left: 0.3rem;
+      display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 600; margin-left: 0.3rem;
     }
     .band-high    { background:#bbf7d0; color:#166534; }
     .band-mod     { background:#fef9c3; color:#854d0e; }
@@ -238,107 +129,72 @@
     body.dark .band-lowmod  { background:#7f1d1d; color:#fee2e2; }
     body.dark .band-unlikely{ background:#4b5563; color:#e5e7eb; }
     .warning {
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      padding: 0.5rem;
-      border-radius: 10px;
-      background:#fee2e2;
-      color:#991b1b;
+      margin-top: 0.5rem; font-size: 0.85rem; padding: 0.5rem;
+      border-radius: 10px; background:#fee2e2; color:#991b1b;
       border: 1px solid #fecaca;
     }
     body.dark .warning {
-      background:#7f1d1d;
-      color:#fee2e2;
-      border-color:#b91c1c;
+      background:#7f1d1d; color:#fee2e2; border-color:#b91c1c;
     }
     .amber {
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
-      padding: 0.5rem;
-      border-radius: 10px;
-      background:#fef9c3;
-      color:#854d0e;
+      margin-top: 0.5rem; font-size: 0.85rem; padding: 0.5rem;
+      border-radius: 10px; background:#fef9c3; color:#854d0e;
       border: 1px solid #fde047;
     }
     body.dark .amber {
-      background:#854d0e;
-      color:#fef9c3;
-      border-color:#eab308;
+      background:#854d0e; color:#fef9c3; border-color:#eab308;
     }
-    .small {
-      font-size: 0.8rem;
-      color: #6b7280;
-    }
-    body.dark .small {
-      color: #9ca3af;
-    }
+    .small { font-size: 0.8rem; color: #6b7280; }
+    body.dark .small { color: #9ca3af; }
     footer {
-      margin: 1.5rem 0 0.75rem;
-      text-align: center;
-      font-size: 0.75rem;
+      margin: 1.5rem 0 0.75rem; text-align: center; font-size: 0.75rem;
       color: #9ca3af;
     }
-    body.dark footer {
-      color: #6b7280;
-    }
-    .hidden {
-      display: none;
-    }
+    body.dark footer { color: #6b7280; }
+    .hidden { display: none; }
     .section-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-top: 0.75rem;
+      font-size: 0.95rem; font-weight: 600; margin-top: 0.75rem;
       margin-bottom: 0.35rem;
     }
     .section-divider {
-      margin-top: 0.75rem;
-      border-top: 1px dashed #d1d5db;
+      margin-top: 0.75rem; border-top: 1px dashed #d1d5db;
     }
-    body.dark .section-divider {
-      border-color: #4b5563;
-    }
+    body.dark .section-divider { border-color: #4b5563; }
     .reset-fab {
-      position: fixed;
-      right: 1rem;
-      bottom: 1rem;
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: none;
-      background: #ef4444;
-      color: #ffffff;
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 10px 25px rgba(239,68,68,0.5);
-      cursor: pointer;
-      z-index: 30;
+      position: fixed; right: 1rem; bottom: 1rem; width: 52px; height: 52px;
+      border-radius: 50%; border: none; background: #ef4444; color: #ffffff;
+      font-size: 1.3rem; display: flex; align-items: center;
+      justify-content: center; box-shadow: 0 10px 25px rgba(239,68,68,0.5);
+      cursor: pointer; z-index: 30;
     }
     body.dark .reset-fab {
-      background:#b91c1c;
-      box-shadow: 0 10px 25px rgba(127,29,29,0.9);
+      background:#b91c1c; box-shadow: 0 10px 25px rgba(127,29,29,0.9);
     }
     .pcs-grid {
-      display: grid;
-      grid-template-columns: 1fr 90px;
-      gap: 0.35rem 0.5rem;
-      align-items: center;
+      display: grid; grid-template-columns: 1fr 90px;
+      gap: 0.35rem 0.5rem; align-items: center;
     }
-    .pcs-label {
-      font-size: 0.8rem;
+    .pcs-label { font-size: 0.8rem; }
+    .womac-accordion-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0.4rem 0; cursor:pointer;
+    }
+    .womac-accordion-header button {
+      border-radius:999px; border:1px solid #d1d5db; padding:0.25rem 0.6rem;
+      font-size:0.75rem; background:#ffffff; cursor:pointer;
+    }
+    body.dark .womac-accordion-header button {
+      background:#020617; border-color:#4b5563; color:#e5e7eb;
+    }
+    .womac-items {
+      margin-top:0.3rem; display:grid; grid-template-columns:1fr 120px;
+      gap:0.35rem 0.5rem;
     }
     @media print {
-      .toggle-dark,
-      #startBtn,
-      .reset-fab,
-      .toolbar button#printBtn {
+      .toggle-dark, #startBtn, .reset-fab, .toolbar button#printBtn {
         display: none !important;
       }
-      body {
-        background: #ffffff;
-        background-image: none;
-      }
+      body { background: #ffffff; background-image: none; }
     }
   </style>
 </head>
@@ -482,30 +338,223 @@
         <div>
           <label for="cs12">CS injections last 12 months</label>
           <input type="number" id="cs12" min="0" />
+          <p class="small">Disabled if this is the first injection.</p>
         </div>
         <div>
           <label for="cslife">CS injections lifetime</label>
           <input type="number" id="cslife" min="0" />
+          <p class="small">Disabled if this is the first injection.</p>
         </div>
       </div>
 
       <div class="section-divider"></div>
-      <div class="section-title">PROMs – WOMAC subscales</div>
-      <p class="small">Enter subscale totals (Pain 0–20, Function 0–68, Stiffness 0–8). All three are modelled distinctly in the prediction algorithm.</p>
-      <div class="grid grid-3">
-        <div>
-          <label for="womacPain">WOMAC Pain (0–20)</label>
-          <input type="number" id="womacPain" min="0" max="20" />
+      <div class="section-title">PROMs – WOMAC (24 items)</div>
+      <p class="small">
+        Each item scored 0–4 (0 = none, 4 = extreme). Sections are collapsed by default – expand to complete.
+        Subscale and total scores update in real time.
+      </p>
+
+      <div class="card" style="margin-top:0.5rem;">
+        <div class="womac-accordion-header">
+          <div><strong>Pain (5 items)</strong></div>
+          <button type="button" data-target="womacPainBody">Show</button>
         </div>
-        <div>
-          <label for="womacFunc">WOMAC Function (0–68)</label>
-          <input type="number" id="womacFunc" min="0" max="68" />
-        </div>
-        <div>
-          <label for="womacStiff">WOMAC Stiffness (0–8)</label>
-          <input type="number" id="womacStiff" min="0" max="8" />
+        <div id="womacPainBody" class="womac-items hidden">
+          <div><label class="pcs-label">Walking on a flat surface</label>
+            <select id="pain1">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Going up or down stairs</label>
+            <select id="pain2">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">At night while in bed</label>
+            <select id="pain3">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Sitting or lying</label>
+            <select id="pain4">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Standing upright</label>
+            <select id="pain5">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
         </div>
       </div>
+
+      <div class="card" style="margin-top:0.5rem;">
+        <div class="womac-accordion-header">
+          <div><strong>Stiffness (2 items)</strong></div>
+          <button type="button" data-target="womacStiffBody">Show</button>
+        </div>
+        <div id="womacStiffBody" class="womac-items hidden">
+          <div><label class="pcs-label">Stiffness after first waking</label>
+            <select id="stiff1">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Stiffness later in the day</label>
+            <select id="stiff2">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:0.5rem;">
+        <div class="womac-accordion-header">
+          <div><strong>Function (17 items)</strong></div>
+          <button type="button" data-target="womacFuncBody">Show</button>
+        </div>
+        <div id="womacFuncBody" class="womac-items hidden">
+          <div><label class="pcs-label">Descending stairs</label>
+            <select id="func1">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Ascending stairs</label>
+            <select id="func2">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Rising from sitting</label>
+            <select id="func3">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Standing</label>
+            <select id="func4">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Bending to floor</label>
+            <select id="func5">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Walking on flat</label>
+            <select id="func6">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Getting in/out of car</label>
+            <select id="func7">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Going shopping</label>
+            <select id="func8">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Putting on socks</label>
+            <select id="func9">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Rising from bed</label>
+            <select id="func10">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Taking off socks</label>
+            <select id="func11">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Lying in bed</label>
+            <select id="func12">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Getting in/out of bath</label>
+            <select id="func13">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Sitting</label>
+            <select id="func14">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Getting on/off toilet</label>
+            <select id="func15">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Heavy household duties</label>
+            <select id="func16">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div><label class="pcs-label">Light household duties</label>
+            <select id="func17">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <p class="small" style="margin-top:0.5rem;">
+        WOMAC Pain: <strong><span id="womacPainTotal">0</span>/20</strong> ·
+        Stiffness: <strong><span id="womacStiffTotal">0</span>/8</strong> ·
+        Function: <strong><span id="womacFuncTotal">0</span>/68</strong> ·
+        Total: <strong><span id="womacTotal">0</span>/96</strong>
+      </p>
 
       <div class="section-divider"></div>
       <div class="section-title">PROMs – PCS-6</div>
@@ -513,51 +562,27 @@
       <div class="pcs-grid">
         <div class="pcs-label">1. I worry all the time about whether the pain will end.</div>
         <select id="pcs1">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
         </select>
         <div class="pcs-label">2. I feel I can’t go on.</div>
         <select id="pcs2">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
         </select>
         <div class="pcs-label">3. It’s terrible and I think it’s never going to get any better.</div>
         <select id="pcs3">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
         </select>
         <div class="pcs-label">4. It’s awful and I feel that it overwhelms me.</div>
         <select id="pcs4">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
         </select>
         <div class="pcs-label">5. I feel I can’t stand it anymore.</div>
         <select id="pcs5">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
         </select>
         <div class="pcs-label">6. I become afraid that the pain will get worse.</div>
         <select id="pcs6">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
         </select>
       </div>
       <p class="small">

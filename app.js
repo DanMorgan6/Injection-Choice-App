@@ -45,6 +45,46 @@ function calcPCS() {
   return { total, band };
 }
 
+function calcWOMAC() {
+  const painIds = ['pain1','pain2','pain3','pain4','pain5'];
+  const stiffIds = ['stiff1','stiff2'];
+  const funcIds = [
+    'func1','func2','func3','func4','func5','func6','func7','func8','func9',
+    'func10','func11','func12','func13','func14','func15','func16','func17'
+  ];
+
+  let pain = 0, stiff = 0, func = 0;
+  painIds.forEach(id => { pain += parseInt(document.getElementById(id).value || "0", 10); });
+  stiffIds.forEach(id => { stiff += parseInt(document.getElementById(id).value || "0", 10); });
+  funcIds.forEach(id => { func += parseInt(document.getElementById(id).value || "0", 10); });
+
+  const total = pain + stiff + func;
+
+  document.getElementById('womacPainTotal').textContent = pain.toString();
+  document.getElementById('womacStiffTotal').textContent = stiff.toString();
+  document.getElementById('womacFuncTotal').textContent = func.toString();
+  document.getElementById('womacTotal').textContent = total.toString();
+
+  return { pain, stiff, func, total };
+}
+
+function applyFirstInjectionBehaviour() {
+  const prior = document.getElementById('prior').value;
+  const cs12Field = document.getElementById('cs12');
+  const cslifeField = document.getElementById('cslife');
+  if (!cs12Field || !cslifeField) return;
+
+  if (prior === 'First') {
+    cs12Field.value = 0;
+    cslifeField.value = 0;
+    cs12Field.disabled = true;
+    cslifeField.disabled = true;
+  } else {
+    cs12Field.disabled = false;
+    cslifeField.disabled = false;
+  }
+}
+
 function calculatePredictions() {
   const age = parseFloat(document.getElementById('age').value) || 0;
   const kl = parseInt(document.getElementById('kl').value) || 0;
@@ -59,15 +99,23 @@ function calculatePredictions() {
   const prior = document.getElementById('prior').value;
   const nutr = document.getElementById('nutr').value;
   const guided = document.getElementById('guided').value;
-  const cs12 = parseInt(document.getElementById('cs12').value) || 0;
-  const cslife = parseInt(document.getElementById('cslife').value) || 0;
+  let cs12 = parseInt(document.getElementById('cs12').value) || 0;
+  let cslife = parseInt(document.getElementById('cslife').value) || 0;
 
   const diabetes = document.getElementById('diabetes').value;
   const glaucoma = document.getElementById('glaucoma').value;
 
-  const womacPain = parseFloat(document.getElementById('womacPain').value) || 0;
-  const womacFunc = parseFloat(document.getElementById('womacFunc').value) || 0;
-  const womacStiff = parseFloat(document.getElementById('womacStiff').value) || 0;
+  // Apply "First injection" behaviour (disables & zeroes CS exposure)
+  applyFirstInjectionBehaviour();
+  if (prior === 'First') {
+    cs12 = 0;
+    cslife = 0;
+  }
+
+  const womac = calcWOMAC();
+  const womacPain = womac.pain;
+  const womacFunc = womac.func;
+  const womacStiff = womac.stiff;
 
   if (!bmi || isNaN(bmi)) {
     const h = parseFloat(document.getElementById('height').value) || 0;
@@ -231,7 +279,7 @@ function calculatePredictions() {
       <p class="small">
         Higher S = more favourable overall prognosis for injection therapy.
         PCS-6: <strong>${pcsTotal}</strong> (${document.getElementById('pcsBandDisplay').textContent});
-        WOMAC pain: ${womacPain || 0}/20; function: ${womacFunc || 0}/68; stiffness: ${womacStiff || 0}/8.
+        WOMAC pain: ${womacPain}/20; stiffness: ${womacStiff}/8; function: ${womacFunc}/68; total: ${womac.pain + womac.stiff + womac.func}/96.
       </p>
     </div>
 
@@ -282,20 +330,27 @@ function resetForm() {
     'metabolic','diabetes','glaucoma',
     'prior','nutr','guided',
     'cs12','cslife',
-    'womacPain','womacFunc','womacStiff',
+    'pain1','pain2','pain3','pain4','pain5',
+    'stiff1','stiff2',
+    'func1','func2','func3','func4','func5','func6','func7','func8','func9',
+    'func10','func11','func12','func13','func14','func15','func16','func17',
     'pcs1','pcs2','pcs3','pcs4','pcs5','pcs6'
   ];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     if (el.tagName === 'SELECT') {
-      el.value = el.id.startsWith('pcs') ? "0" : "";
+      el.value = "0";
     } else {
       el.value = '';
     }
   });
   document.getElementById('pcsTotalDisplay').textContent = "0";
   document.getElementById('pcsBandDisplay').textContent = "Low";
+  document.getElementById('womacPainTotal').textContent = "0";
+  document.getElementById('womacStiffTotal').textContent = "0";
+  document.getElementById('womacFuncTotal').textContent = "0";
+  document.getElementById('womacTotal').textContent = "0";
 
   const amber = document.getElementById('amberWarning');
   const csWarning = document.getElementById('csWarning');
@@ -303,6 +358,8 @@ function resetForm() {
   if (amber) { amber.style.display = 'none'; amber.innerHTML = ''; }
   if (csWarning) { csWarning.style.display = 'none'; csWarning.innerHTML = ''; }
   if (results) { results.innerHTML = ''; }
+
+  applyFirstInjectionBehaviour();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -320,29 +377,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  if (calcBtn) {
-    calcBtn.addEventListener('click', function() {
-      calculatePredictions();
-    });
-  }
-
-  if (printBtn) {
-    printBtn.addEventListener('click', function() {
-      window.print();
-    });
-  }
-
-  if (resetFab) {
-    resetFab.addEventListener('click', function() {
-      resetForm();
-    });
-  }
-
-  if (darkToggle) {
-    darkToggle.addEventListener('click', function() {
-      document.body.classList.toggle('dark');
-    });
-  }
+  if (calcBtn) calcBtn.addEventListener('click', calculatePredictions);
+  if (printBtn) printBtn.addEventListener('click', () => window.print());
+  if (resetFab) resetFab.addEventListener('click', resetForm);
+  if (darkToggle) darkToggle.addEventListener('click', () => document.body.classList.toggle('dark'));
 
   const h = document.getElementById('height');
   const w = document.getElementById('weight');
@@ -353,4 +391,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const el = document.getElementById('pcs' + i);
     if (el) el.addEventListener('change', calcPCS);
   }
+
+  const womacIds = [
+    'pain1','pain2','pain3','pain4','pain5',
+    'stiff1','stiff2',
+    'func1','func2','func3','func4','func5','func6','func7','func8','func9',
+    'func10','func11','func12','func13','func14','func15','func16','func17'
+  ];
+  womacIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', calcWOMAC);
+  });
+
+  const headerButtons = document.querySelectorAll('.womac-accordion-header button');
+  headerButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      const body = document.getElementById(targetId);
+      if (!body) return;
+      const hidden = body.classList.contains('hidden');
+      body.classList.toggle('hidden');
+      btn.textContent = hidden ? 'Hide' : 'Show';
+    });
+  });
+
+  const priorSelect = document.getElementById('prior');
+  if (priorSelect) {
+    priorSelect.addEventListener('change', applyFirstInjectionBehaviour);
+  }
+
+  applyFirstInjectionBehaviour();
 });
