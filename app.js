@@ -105,7 +105,6 @@ function calculatePredictions() {
   const diabetes = document.getElementById('diabetes').value;
   const glaucoma = document.getElementById('glaucoma').value;
 
-  // Apply "First injection" behaviour (disables & zeroes CS exposure)
   applyFirstInjectionBehaviour();
   if (prior === 'First') {
     cs12 = 0;
@@ -403,17 +402,25 @@ document.addEventListener('DOMContentLoaded', function() {
     if (el) el.addEventListener('change', calcWOMAC);
   });
 
-  const headerButtons = document.querySelectorAll('.womac-accordion-header button');
-  headerButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.getAttribute('data-target');
-      const body = document.getElementById(targetId);
-      if (!body) return;
-      const hidden = body.classList.contains('hidden');
-      body.classList.toggle('hidden');
-      btn.textContent = hidden ? 'Hide' : 'Show';
+  const womacToggleBtn = document.getElementById('womacToggleBtn');
+  const womacGrid = document.getElementById('womacGrid');
+  if (womacToggleBtn && womacGrid) {
+    womacToggleBtn.addEventListener('click', () => {
+      const show = !womacGrid.classList.contains('show');
+      womacGrid.classList.toggle('show', show);
+      womacToggleBtn.textContent = show ? 'Hide' : 'Show';
     });
-  });
+  }
+
+  const pcsToggleBtn = document.getElementById('pcsToggleBtn');
+  const pcsGrid = document.getElementById('pcsGrid');
+  if (pcsToggleBtn && pcsGrid) {
+    pcsToggleBtn.addEventListener('click', () => {
+      const show = !pcsGrid.classList.contains('show');
+      pcsGrid.classList.toggle('show', show);
+      pcsToggleBtn.textContent = show ? 'Hide' : 'Show';
+    });
+  }
 
   const priorSelect = document.getElementById('prior');
   if (priorSelect) {
