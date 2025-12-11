@@ -113,11 +113,6 @@ function calculatePredictions() {
     cslife = 0;
   }
 
-  const womac = calcWOMAC();
-  const womacPain = womac.pain;
-  const womacFunc = womac.func;
-  const womacStiff = womac.stiff;
-
   if (!bmi || isNaN(bmi)) {
     const h = parseFloat(document.getElementById('height').value) || 0;
     const w = parseFloat(document.getElementById('weight').value) || 0;
@@ -215,30 +210,18 @@ function calculatePredictions() {
   const priorPosFlag = (prior === 'Y') ? 1 : 0;
   const malFlag = yn(mal);
 
-  const womacPainNorm = Math.min(Math.max(womacPain / 20.0, 0), 1);
-  const womacFuncNorm = Math.min(Math.max(womacFunc / 68.0, 0), 1);
-  const womacStiffNorm = Math.min(Math.max(womacStiff / 8.0, 0), 1);
-
   let CS_short = S + 4 * synFlag + 1 * effFlag + 1 * priorPosFlag - 1 * CSloadCat;
   let CS_mid   = S + 2 * synFlag - 1 * CSloadCat - 1;
 
-  CS_short += 1.2 * womacPainNorm - 0.3 * womacStiffNorm;
-  CS_mid   += 0.6 * womacPainNorm - 0.4 * womacFuncNorm - 0.3 * womacStiffNorm;
-
   let HA_short = S + 1 * effFlag;
   let HA_mid   = S + 3 * KLcat + 1 * effFlag - (CSloadCat >= 2 ? 1 : 0);
-
-  HA_short += 0.5 * womacPainNorm - 0.2 * womacStiffNorm;
-  HA_mid   += 1.2 * womacFuncNorm + 0.4 * womacPainNorm - 0.3 * womacStiffNorm;
 
   let Gel_short = S;
   let Gel_mid   = S
                 + 2 * KLcat
                 + 1 * effFlag
                 + 2 * synFlag
-                + (age < 60 ? 2 : (age < 70 ? 1 : 0))
-                + 1.5 * womacFuncNorm
-                + 0.7 * womacStiffNorm;
+                + (age < 60 ? 2 : (age < 70 ? 1 : 0));
 
   let Gel_long = 
       3 * (age < 60 ? 1 : 0) +
@@ -280,8 +263,7 @@ function calculatePredictions() {
       <p class="small">
         Higher S = more favourable overall prognosis for injection therapy.
         PCS-6: <strong>${pcsTotal}</strong> (${document.getElementById('pcsBandDisplay').textContent});
-        WOMAC pain: ${womacPain}/20; stiffness: ${womacStiff}/8; function: ${womacFunc}/68; total: ${womac.pain + womac.stiff + womac.func}/96.
-      </p>
+              </p>
     </div>
 
     <div class="grid grid-3">

@@ -364,6 +364,21 @@ function resetForm() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  const xraySel = document.getElementById('pt_xray');
+  const sevSel = document.getElementById('pt_severity');
+  if (xraySel && sevSel) {
+    function updateSeverityState() {
+      if (xraySel.value === 'Y') {
+        sevSel.disabled = false;
+      } else {
+        sevSel.value = "";
+        sevSel.disabled = true;
+      }
+    }
+    xraySel.addEventListener('change', updateSeverityState);
+    updateSeverityState();
+  }
+
 
   const modeClinicianBtn = document.getElementById('modeClinicianBtn');
   const modePatientBtn = document.getElementById('modePatientBtn');
@@ -531,7 +546,16 @@ function calculatePatientPredictions() {
   if (csCount === 'few') CSloadPenalty = -0.5;
   else if (csCount === 'many') CSloadPenalty = -1.5;
 
-  const BaselineIndex = SymptomScore - PsychPenalty + AgeScore + StageScore;
+  
+  // Quadriceps difficulty from chair stand question
+  const quadVal = (document.getElementById('quadweak') || {}).value || "";
+  let QuadPenalty = 0;
+  if (quadVal === 'abit') QuadPenalty = -0.3;
+  else if (quadVal === 'hard') QuadPenalty = -0.7;
+  else if (quadVal === 'cant') QuadPenalty = -1.0;
+
+  const BaselineIndex = SymptomScore - PsychPenalty + AgeScore + StageScore + QuadPenalty;
+
 
   const CS_short = BaselineIndex
                  + 2.0*InflammScore

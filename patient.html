@@ -220,8 +220,6 @@
   </div>
 
   <div class="app">
-    <div class="card" id="modeCard">
-      <div class="section-title">Select mode</div>
       <div class="grid grid-2">
         <button type="button" id="modeClinicianBtn" class="btn-secondary mode-active">Clinician mode</button>
         <button type="button" id="modePatientBtn" class="btn-secondary">Patient mode</button>
@@ -305,7 +303,7 @@
       <div class="section-title">Knee structural &amp; biomechanical</div>
       <div class="grid grid-2">
         <div>
-          <label for="synovitis">Synovitis</label>
+          <label for="synovitis">Does your knee often look swollen or puffy?</label>
           <select id="synovitis">
             <option value="">--</option>
             <option value="Y">Y</option>
@@ -313,7 +311,7 @@
           </select>
         </div>
         <div>
-          <label for="effusion">Effusion</label>
+          <label for="effusion">Does your knee ever feel warm or hot to touch?</label>
           <select id="effusion">
             <option value="">--</option>
             <option value="Y">Y</option>
@@ -329,11 +327,13 @@
           </select>
         </div>
         <div>
-          <label for="quadweak">Quadriceps weakness</label>
+          <label for="quadweak">How difficult is it for you to stand up from a chair without using your hands?</label>
           <select id="quadweak">
             <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
+            <option value="easy">Easy</option>
+            <option value="abit">A bit difficult</option>
+            <option value="hard">Very difficult</option>
+            <option value="cant">I cannot do this without my hands</option>
           </select>
         </div>
         <div id="pt_cs_block" class="mode-patient mode-hidden">
@@ -368,15 +368,6 @@
           <p class="small">E.g. diabetes, CVD, autoimmune disease, CKD, CLD.</p>
         </div>
         <div>
-          <label for="prior">Prior positive response</label>
-          <select id="prior">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-            <option value="First">First injection</option>
-          </select>
-        </div>
-        <div>
           <label for="nutr">Nutritional risk</label>
           <select id="nutr">
             <option value="">--</option>
@@ -409,12 +400,14 @@
           </select>
         </div>
         <div>
+          <!-- Clinician-only CS load fields hidden in patient view
           <label for="cs12">CS injections last 12 months</label>
           <input type="number" id="cs12" min="0" />
           <p class="small">Disabled if this is the first injection.</p>
         </div>
         <div>
           <label for="cslife">CS injections lifetime</label>
+          <!-- end clinician-only block -->
           <input type="number" id="cslife" min="0" />
           <p class="small">Disabled if this is the first injection.</p>
         </div>
