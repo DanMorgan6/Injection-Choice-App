@@ -45,7 +45,10 @@
     body.dark .title { color: #e5e7eb; }
     .subtitle { font-size: 0.85rem; color: #4b5563; margin-top: 0.15rem; }
     body.dark .subtitle { color: #9ca3af; }
-    .app { max-width: 900px; margin: 0 auto; padding: 0 1rem 3.5rem; }
+    
+    .mode-hidden { display:none; }
+    .mode-active { border-color:#2563eb; color:#2563eb; font-weight:600; }
+.app { max-width: 900px; margin: 0 auto; padding: 0 1rem 3.5rem; }
     .card {
       background: rgba(255,255,255,0.96); border-radius: 16px; padding: 1rem;
       margin-top: 0.75rem; box-shadow: 0 10px 30px rgba(15,23,42,0.08);
@@ -217,6 +220,15 @@
   </div>
 
   <div class="app">
+    <div class="card" id="modeCard">
+      <div class="section-title">Select mode</div>
+      <div class="grid grid-2">
+        <button type="button" id="modeClinicianBtn" class="btn-secondary mode-active">Clinician mode</button>
+        <button type="button" id="modePatientBtn" class="btn-secondary">Patient mode</button>
+      </div>
+      <p class="small">Clinician mode uses full clinical inputs. Patient mode uses a questionnaire-based prediction with simpler wording.</p>
+    </div>
+
     <button id="startBtn" class="primary-btn">
       <span class="icon">▶</span>
       <span>Start assessment</span>
@@ -247,10 +259,46 @@
           <label for="bmi">BMI (kg/m²)</label>
           <input type="number" id="bmi" step="0.1" readonly />
         </div>
-        <div>
+        <div id="klClinicianBlock" class="mode-clinician">
           <label for="kl">KL Grade (1–4)</label>
           <input type="number" id="kl" min="1" max="4" />
+          <p class="small">Clinician-entered Kellgren–Lawrence grade.</p>
         </div>
+        <div id="klPatientBlock" class="mode-patient mode-hidden">
+          <label for="pt_xray">Have you had an X-ray confirming arthritis in this knee?</label>
+          <select id="pt_xray">
+            <option value="">--</option>
+            <option value="Y">Yes</option>
+            <option value="N">No / Not sure</option>
+          </select>
+          <label for="pt_severity" style="margin-top:0.4rem; display:block;">If yes, how was the arthritis described?</label>
+          <select id="pt_severity">
+            <option value="">--</option>
+            <option value="mild">Mild</option>
+            <option value="mildmod">Mild–Moderate</option>
+            <option value="mod">Moderate</option>
+            <option value="modsev">Moderate–Severe</option>
+            <option value="sev">Severe</option>
+          </select>
+          <p class="small">If you are not sure, you can leave this blank. The prediction will be less precise without severity.</p>
+        </div>
+        <div id="pt_cs_block" class="mode-patient mode-hidden">
+          <label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
+          <select id="pt_cs_response">
+            <option value="">--</option>
+            <option value="none">Never</option>
+            <option value="good">Yes – they helped</option>
+            <option value="poor">Yes – they didn't help much</option>
+          </select>
+          <label for="pt_cs_count" style="margin-top:0.4rem; display:block;">Roughly how many steroid injections have you had into this knee?</label>
+          <select id="pt_cs_count">
+            <option value="">--</option>
+            <option value="none">None</option>
+            <option value="few">1–2</option>
+            <option value="many">3 or more</option>
+          </select>
+        </div>
+
       </div>
 
       <div class="section-divider"></div>
@@ -288,6 +336,23 @@
             <option value="N">N</option>
           </select>
         </div>
+        <div id="pt_cs_block" class="mode-patient mode-hidden">
+          <label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
+          <select id="pt_cs_response">
+            <option value="">--</option>
+            <option value="none">Never</option>
+            <option value="good">Yes – they helped</option>
+            <option value="poor">Yes – they didn't help much</option>
+          </select>
+          <label for="pt_cs_count" style="margin-top:0.4rem; display:block;">Roughly how many steroid injections have you had into this knee?</label>
+          <select id="pt_cs_count">
+            <option value="">--</option>
+            <option value="none">None</option>
+            <option value="few">1–2</option>
+            <option value="many">3 or more</option>
+          </select>
+        </div>
+
       </div>
 
       <div class="section-divider"></div>
@@ -353,6 +418,23 @@
           <input type="number" id="cslife" min="0" />
           <p class="small">Disabled if this is the first injection.</p>
         </div>
+        <div id="pt_cs_block" class="mode-patient mode-hidden">
+          <label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
+          <select id="pt_cs_response">
+            <option value="">--</option>
+            <option value="none">Never</option>
+            <option value="good">Yes – they helped</option>
+            <option value="poor">Yes – they didn't help much</option>
+          </select>
+          <label for="pt_cs_count" style="margin-top:0.4rem; display:block;">Roughly how many steroid injections have you had into this knee?</label>
+          <select id="pt_cs_count">
+            <option value="">--</option>
+            <option value="none">None</option>
+            <option value="few">1–2</option>
+            <option value="many">3 or more</option>
+          </select>
+        </div>
+
       </div>
 
       <div class="section-divider"></div>
