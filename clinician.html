@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Knee OA Injection Outcome Predictor (Clinician Tool)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="manifest" href="manifest.json">
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f8fbff;
+      background-image: linear-gradient(#e0efff 1px, transparent 1px),
+                        linear-gradient(90deg, #e0efff 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: #111827;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    body.dark {
+      background: #020617;
+      background-image: linear-gradient(#1e293b 1px, transparent 1px),
+                        linear-gradient(90deg, #1e293b 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: #e5e7eb;
+    }
+    .header { text-align: center; padding: 1.2rem 1rem 0.5rem; }
+    .header img {
+      width: 140px; height: 140px; border-radius: 50%; object-fit: contain;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.09); background: #ffffff;
+    }
+    body.dark .header img {
+      background: #020617; box-shadow: 0 4px 12px rgba(15,23,42,0.7);
+    }
+    .brand-title {
+      font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+      margin-top: 0.5rem; color: #6b7280;
+    }
+    body.dark .brand-title { color: #9ca3af; }
+    .title {
+      font-size: 1.4rem; margin-top: 0.15rem; font-weight: 700; color: #111827;
+    }
+    body.dark .title { color: #e5e7eb; }
+    .subtitle { font-size: 0.85rem; color: #4b5563; margin-top: 0.15rem; }
+    body.dark .subtitle { color: #9ca3af; }
+    
+    .mode-hidden { display:none; }
+    .mode-active { border-color:#2563eb; color:#2563eb; font-weight:600; }
+.app { max-width: 900px; margin: 0 auto; padding: 0 1rem 3.5rem; }
+    .card {
+      background: rgba(255,255,255,0.96); border-radius: 16px; padding: 1rem;
+      margin-top: 0.75rem; box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+      backdrop-filter: blur(8px);
+    }
+    body.dark .card {
+      background: rgba(15,23,42,0.96); box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      border: 1px solid #1f2937;
+    }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+    @media (min-width: 700px) {
+      .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+    label {
+      font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 0.2rem;
+      color: #374151;
+    }
+    body.dark label { color: #e5e7eb; }
+    input, select {
+      width: 100%; box-sizing: border-box; padding: 0.45rem 0.5rem;
+      border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.9rem;
+      background: #ffffff; color: #111827;
+    }
+    body.dark input, body.dark select {
+      background: #020617; border-color: #4b5563; color: #e5e7eb;
+    }
+    input:focus, select:focus {
+      outline: none; border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
+    }
+    body.dark input:focus, body.dark select:focus {
+      border-color: #60a5fa; box-shadow: 0 0 0 1px rgba(96,165,250,0.4);
+    }
+    .primary-btn {
+      margin-top: 1rem; width: 100%; padding: 0.8rem; border-radius: 999px;
+      border: none; font-size: 1rem; font-weight: 600; background: #2563eb;
+      color: #ffffff; display: inline-flex; align-items: center;
+      justify-content: center; gap: 0.4rem; cursor: pointer;
+    }
+    .primary-btn span.icon { font-size: 1.1rem; }
+    .btn-secondary {
+      margin-top: 0.75rem; width: 100%; padding: 0.7rem; border-radius: 999px;
+      border: 1px solid #d1d5db; background: #ffffff; font-size: 0.9rem;
+      font-weight: 500; color: #374151; cursor: pointer;
+    }
+    body.dark .btn-secondary {
+      background: #020617; border-color: #4b5563; color: #e5e7eb;
+    }
+    .toolbar { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+    .toolbar button { flex: 1 1 48%; }
+    .toggle-dark {
+      position: fixed; top: 0.75rem; right: 0.75rem; z-index: 40;
+      padding: 0.45rem 0.7rem; font-size: 0.8rem; border-radius: 999px;
+      border: 1px solid #d1d5db; background: #ffffff; color: #111827;
+      cursor: pointer;
+    }
+    body.dark .toggle-dark {
+      background: #020617; color: #e5e7eb; border-color: #4b5563;
+    }
+    .result-card {
+      border-radius: 16px; padding: 0.75rem; margin-top: 0.5rem;
+      font-size: 0.9rem; border: 1px solid #e5e7eb;
+    }
+    body.dark .result-card { border-color: #374151; }
+    .cs { border-left: 4px solid #2563eb; }
+    .ha { border-left: 4px solid #059669; }
+    .gel { border-left: 4px solid #7c3aed; }
+    .preferred { box-shadow: 0 0 0 2px #bbf7d0; }
+    body.dark .preferred { box-shadow: 0 0 0 2px #22c55e; }
+    .band-pill {
+      display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 600; margin-left: 0.3rem;
+    }
+    .band-high    { background:#bbf7d0; color:#166534; }
+    .band-mod     { background:#fef9c3; color:#854d0e; }
+    .band-lowmod  { background:#fee2e2; color:#b91c1c; }
+    .band-unlikely{ background:#e5e7eb; color:#374151; }
+    body.dark .band-high    { background:#166534; color:#bbf7d0; }
+    body.dark .band-mod     { background:#854d0e; color:#fef9c3; }
+    body.dark .band-lowmod  { background:#7f1d1d; color:#fee2e2; }
+    body.dark .band-unlikely{ background:#4b5563; color:#e5e7eb; }
+    .warning {
+      margin-top: 0.5rem; font-size: 0.85rem; padding: 0.5rem;
+      border-radius: 10px; background:#fee2e2; color:#991b1b;
+      border: 1px solid #fecaca;
+    }
+    body.dark .warning {
+      background:#7f1d1d; color:#fee2e2; border-color:#b91c1c;
+    }
+    .amber {
+      margin-top: 0.5rem; font-size: 0.85rem; padding: 0.5rem;
+      border-radius: 10px; background:#fef9c3; color:#854d0e;
+      border: 1px solid #fde047;
+    }
+    body.dark .amber {
+      background:#854d0e; color:#fef9c3; border-color:#eab308;
+    }
+    .small { font-size: 0.8rem; color: #6b7280; }
+    body.dark .small { color: #9ca3af; }
+    footer {
+      margin: 1.5rem 0 0.75rem; text-align: center; font-size: 0.75rem;
+      color: #9ca3af;
+    }
+    body.dark footer { color: #6b7280; }
+    .hidden { display: none; }
+    .section-title {
+      font-size: 0.95rem; font-weight: 600; margin-top: 0.75rem;
+      margin-bottom: 0.35rem;
+    }
+    .section-divider {
+      margin-top: 0.75rem; border-top: 1px dashed #d1d5db;
+    }
+    body.dark .section-divider { border-color: #4b5563; }
+    .reset-fab {
+      position: fixed; right: 1rem; bottom: 1rem; width: 52px; height: 52px;
+      border-radius: 50%; border: none; background: #ef4444; color: #ffffff;
+      font-size: 1.3rem; display: flex; align-items: center;
+      justify-content: center; box-shadow: 0 10px 25px rgba(239,68,68,0.5);
+      cursor: pointer; z-index: 30;
+    }
+    body.dark .reset-fab {
+      background:#b91c1c; box-shadow: 0 10px 25px rgba(127,29,29,0.9);
+    }
+    .pcs-grid {
+      display: grid; grid-template-columns: 1fr 90px;
+      gap: 0.35rem 0.5rem; align-items: center;
+    }
+    .pcs-label { font-size: 0.8rem; }
+    .accordion-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0.4rem 0; cursor:pointer;
+    }
+    .accordion-header button {
+      border-radius:999px; border:1px solid #d1d5db; padding:0.25rem 0.6rem;
+      font-size:0.75rem; background:#ffffff; cursor:pointer;
+    }
+    body.dark .accordion-header button {
+      background:#020617; border-color:#4b5563; color:#e5e7eb;
+    }
+    .womac-grid {
+      margin-top:0.3rem;
+      display:none;
+      grid-template-columns: 1fr 120px;
+      gap:0.4rem 0.7rem;
+      align-items:center;
+    }
+    .womac-grid.show { display:grid !important; }
+    .womac-item label { font-size:0.8rem; }
+    @media (max-width: 600px) {
+      .womac-grid { grid-template-columns: 1fr; }
+    }
+    @media print {
+      .toggle-dark, #startBtn, .reset-fab, .toolbar button#printBtn {
+        display: none !important;
+      }
+      body { background: #ffffff; background-image: none; }
+    }
+  </style>
+</head>
+<body>
+  <button id="darkToggle" class="toggle-dark">Dark mode</button>
+
+  <div class="header">
+    <img src="logo.png" alt="The Complete Practitioner logo">
+    <div class="brand-title">The Complete Practitioner</div>
+    <div class="title">Knee OA Injection Outcome Predictor</div>
+    <div class="subtitle">Clinician-facing tool using full clinical inputs and imaging, with short-, mid- and long-term outcome predictions.</div>
+  </div>
+
+  <div class="app">
+    <div class="card" id="modeCard">
+      <div class="section-title">Select mode</div>
+      <div class="grid grid-2">
+        <button type="button" id="modeClinicianBtn" class="btn-secondary mode-active">Clinician mode</button>
+        <button type="button" id="modePatientBtn" class="btn-secondary">Patient mode</button>
+      </div>
+      <p class="small">Clinician mode uses full clinical inputs. Patient mode uses a questionnaire-based prediction with simpler wording.</p>
+    </div>
+
+    <button id="startBtn" class="primary-btn">
+      <span class="icon">▶</span>
+      <span>Start assessment</span>
+    </button>
+
+    <div id="formCard" class="card hidden">
+      <h2 style="margin-top:0;">Clinical Inputs</h2>
+
+      <div class="section-title">Patient details &amp; symptoms</div>
+      <div class="grid grid-2">
+        <div>
+          <label for="age">Age (years)</label>
+          <input type="number" id="age" min="18" max="100" />
+        </div>
+        <div>
+          <label for="vas">VAS Pain (0–100)</label>
+          <input type="number" id="vas" min="0" max="100" />
+        </div>
+        <div>
+          <label for="height">Height (cm)</label>
+          <input type="number" id="height" min="100" max="220" />
+        </div>
+        <div>
+          <label for="weight">Weight (kg)</label>
+          <input type="number" id="weight" min="30" max="200" step="0.1" />
+        </div>
+        <div>
+          <label for="bmi">BMI (kg/m²)</label>
+          <input type="number" id="bmi" step="0.1" readonly />
+        </div>
+        <div id="klClinicianBlock" class="mode-clinician">
+          <label for="kl">KL Grade (1–4)</label>
+          <input type="number" id="kl" min="1" max="4" />
+          <p class="small">Clinician-entered Kellgren–Lawrence grade.</p>
+        </div>
+        <div id="klPatientBlock" class="mode-patient mode-hidden">
+          <label for="pt_xray">Have you had an X-ray confirming arthritis in this knee?</label>
+          <select id="pt_xray">
+            <option value="">--</option>
+            <option value="Y">Yes</option>
+            <option value="N">No / Not sure</option>
+          </select>
+          <label for="pt_severity" style="margin-top:0.4rem; display:block;">If yes, how was the arthritis described?</label>
+          <select id="pt_severity">
+            <option value="">--</option>
+            <option value="mild">Mild</option>
+            <option value="mildmod">Mild–Moderate</option>
+            <option value="mod">Moderate</option>
+            <option value="modsev">Moderate–Severe</option>
+            <option value="sev">Severe</option>
+          </select>
+          <p class="small">If you are not sure, you can leave this blank. The prediction will be less precise without severity.</p>
+        </div>
+        <div id="pt_cs_block" class="mode-patient mode-hidden">
+          <label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
+          <select id="pt_cs_response">
+            <option value="">--</option>
+            <option value="none">Never</option>
+            <option value="good">Yes – they helped</option>
+            <option value="poor">Yes – they didn't help much</option>
+          </select>
+          <label for="pt_cs_count" style="margin-top:0.4rem; display:block;">Roughly how many steroid injections have you had into this knee?</label>
+          <select id="pt_cs_count">
+            <option value="">--</option>
+            <option value="none">None</option>
+            <option value="few">1–2</option>
+            <option value="many">3 or more</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="section-divider"></div>
+      <div class="section-title">Knee structural &amp; biomechanical</div>
+      <div class="grid grid-2">
+        <div>
+          <label for="synovitis">Synovitis</label>
+          <select id="synovitis">
+            <option value="">--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+          </select>
+        </div>
+        <div>
+          <label for="effusion">Effusion</label>
+          <select id="effusion">
+            <option value="">--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+          </select>
+        </div>
+        <div>
+          <label for="malalign">Malalignment &gt;5°</label>
+          <select id="malalign">
+            <option value="">--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+          </select>
+        </div>
+        <div>
+          <label for="quadweak">Quadriceps weakness</label>
+          <select id="quadweak">
+            <option value="">--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+          </select>
+        </div>
+        <div id="pt_cs_block" class="mode-patient mode-hidden">
+          <label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
+          <select id="pt_cs_response">
+            <option value="">--</option>
+            <option value="none">Never</option>
+            <option value="good">Yes – they helped</option>
+            <option value="poor">Yes – they didn't help much</option>
+          </select>
+          <label for="pt_cs_count" style="margin-top:0.4rem; display:block;">Roughly how many steroid injections have you had into this knee?</label>
+          <select id="pt_cs_count">
+            <option value="">--</option>
+            <option value="none">None</option>
+            <option value="few">1–2</option>
+            <option value="many">3 or more</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="section-divider"></div>
+      <div class="section-title">Systemic risk &amp; injection history</div>
+      <div class="grid grid-2">
+        <div>
+          <label for="metabolic">Systemic comorbidity</label>
+          <select id="metabolic">
+            <option value="">--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+          </select>
+          <p class="small">E.g. diabetes, CVD, autoimmune disease, CKD, CLD.</p>
+        </div>
+        <div>
+          <label for="prior">Prior positive response</label>
+          <select id="prior">
+            <option value="">--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+            <option value="First">First injection</option>
+          </select>
+        </div>
+        <div>
+          <label for="nutr">Nutritional risk</label>
+          <select id="nutr">
+            <option value="">--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+          </select>
+        </div>
+        <div>
+          <label for="guided">Image-guided injection</label>
+          <select id="guided">
+            <option value="">--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+          </select>
+        </div>
+        <div>
+          <label for="diabetes">Diabetes</label>
+          <select id="diabetes">
+            <option value="">--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+          </select>
+        </div>
+        <div>
+          <label for="glaucoma">Glaucoma</label>
+          <select id="glaucoma">
+            <option value="">--</option>
+            <option value="Y">Y</option>
+            <option value="N">N</option>
+          </select>
+        </div>
+        <div>
+          <label for="cs12">CS injections last 12 months</label>
+          <input type="number" id="cs12" min="0" />
+          <p class="small">Disabled if this is the first injection.</p>
+        </div>
+        <div>
+          <label for="cslife">CS injections lifetime</label>
+          <input type="number" id="cslife" min="0" />
+          <p class="small">Disabled if this is the first injection.</p>
+        </div>
+        <div id="pt_cs_block" class="mode-patient mode-hidden">
+          <label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
+          <select id="pt_cs_response">
+            <option value="">--</option>
+            <option value="none">Never</option>
+            <option value="good">Yes – they helped</option>
+            <option value="poor">Yes – they didn't help much</option>
+          </select>
+          <label for="pt_cs_count" style="margin-top:0.4rem; display:block;">Roughly how many steroid injections have you had into this knee?</label>
+          <select id="pt_cs_count">
+            <option value="">--</option>
+            <option value="none">None</option>
+            <option value="few">1–2</option>
+            <option value="many">3 or more</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="section-divider"></div>
+      <div class="section-title">PROMs – WOMAC (24 items)</div>
+      <p class="small">
+        Each item scored 0–4 (0 = none, 4 = extreme). Click to expand the full WOMAC questionnaire.
+      </p>
+
+      <div class="card" style="margin-top:0.5rem;">
+        <div class="accordion-header">
+          <div><strong>WOMAC (Pain, Stiffness &amp; Function – 24 questions)</strong></div>
+          <button type="button" id="womacToggleBtn" data-target="womacGrid">Show</button>
+        </div>
+        <div id="womacGrid" class="womac-grid">
+          <!-- Pain -->
+          <div class="womac-item">
+            <label>Walking on a flat surface</label>
+            <select id="pain1">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Going up or down stairs</label>
+            <select id="pain2">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>At night while in bed</label>
+            <select id="pain3">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Sitting or lying</label>
+            <select id="pain4">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Standing upright</label>
+            <select id="pain5">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <!-- Stiffness -->
+          <div class="womac-item">
+            <label>Stiffness after first waking</label>
+            <select id="stiff1">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Stiffness later in the day</label>
+            <select id="stiff2">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <!-- Function (17 items) -->
+          <div class="womac-item">
+            <label>Descending stairs</label>
+            <select id="func1">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Ascending stairs</label>
+            <select id="func2">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Rising from sitting</label>
+            <select id="func3">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Standing</label>
+            <select id="func4">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Bending to floor</label>
+            <select id="func5">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Walking on flat</label>
+            <select id="func6">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Getting in/out of car</label>
+            <select id="func7">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Going shopping</label>
+            <select id="func8">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Putting on socks</label>
+            <select id="func9">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Rising from bed</label>
+            <select id="func10">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Taking off socks</label>
+            <select id="func11">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Lying in bed</label>
+            <select id="func12">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Getting in/out of bath</label>
+            <select id="func13">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Sitting</label>
+            <select id="func14">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Getting on/off toilet</label>
+            <select id="func15">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Heavy household duties</label>
+            <select id="func16">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>Light household duties</label>
+            <select id="func17">
+              <option value="0">0 - None</option><option value="1">1 - Mild</option>
+              <option value="2">2 - Moderate</option><option value="3">3 - Severe</option>
+              <option value="4">4 - Extreme</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <p class="small" style="margin-top:0.5rem;">
+        WOMAC Pain: <strong><span id="womacPainTotal">0</span>/20</strong> ·
+        Stiffness: <strong><span id="womacStiffTotal">0</span>/8</strong> ·
+        Function: <strong><span id="womacFuncTotal">0</span>/68</strong> ·
+        Total: <strong><span id="womacTotal">0</span>/96</strong>
+      </p>
+
+      <div class="section-divider"></div>
+      <div class="section-title">PROMs – PCS-6</div>
+      <p class="small">
+        Click to expand the 6-item PCS-6. Each item 0–4 (0 = not at all, 4 = all the time).
+      </p>
+
+      <div class="card" style="margin-top:0.5rem;">
+        <div class="accordion-header">
+          <div><strong>PCS-6 (Pain Catastrophizing – 6 questions)</strong></div>
+          <button type="button" id="pcsToggleBtn" data-target="pcsGrid">Show</button>
+        </div>
+        <div id="pcsGrid" class="womac-grid">
+          <div class="womac-item">
+            <label>1. I worry all the time about whether the pain will end.</label>
+            <select id="pcs1">
+              <option value="0">0</option><option value="1">1</option>
+              <option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>2. I feel I can’t go on.</label>
+            <select id="pcs2">
+              <option value="0">0</option><option value="1">1</option>
+              <option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>3. It’s terrible and I think it’s never going to get any better.</label>
+            <select id="pcs3">
+              <option value="0">0</option><option value="1">1</option>
+              <option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>4. It’s awful and I feel that it overwhelms me.</label>
+            <select id="pcs4">
+              <option value="0">0</option><option value="1">1</option>
+              <option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>5. I feel I can’t stand it anymore.</label>
+            <select id="pcs5">
+              <option value="0">0</option><option value="1">1</option>
+              <option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          <div class="womac-item">
+            <label>6. I become afraid that the pain will get worse.</label>
+            <select id="pcs6">
+              <option value="0">0</option><option value="1">1</option>
+              <option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <p class="small">
+        PCS-6 total: <strong><span id="pcsTotalDisplay">0</span></strong>
+        – Band: <strong><span id="pcsBandDisplay">Low</span></strong>
+      </p>
+
+      <div class="toolbar">
+        <button class="btn-secondary" id="calcBtn">Calculate predictions</button>
+        <button class="btn-secondary" id="printBtn">Share / Export as PDF</button>
+      </div>
+
+      <div id="amberWarning" class="amber" style="display:none;"></div>
+      <div id="csWarning" class="warning" style="display:none;"></div>
+    </div>
+
+    <div id="results" style="margin-top:1rem;"></div>
+
+    <footer>
+      The Complete Practitioner – Knee OA Injection Outcome Predictor · Clinical decision support only – does not replace clinical judgement.
+    </footer>
+  </div>
+
+  <button id="resetFab" class="reset-fab" title="Reset form">↺</button>
+
+  <script src="clinician.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js').catch(function(err){
+          console.log('SW registration failed', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
