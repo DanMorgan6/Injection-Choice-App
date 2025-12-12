@@ -208,313 +208,314 @@
       body { background: #ffffff; background-image: none; }
     }
   </style>
-</head>
-<body>
-  <button id="darkToggle" class="toggle-dark">Dark mode</button>
 
-  <div class="header">
-    <img src="logo.png" alt="The Complete Practitioner logo">
-    <div class="brand-title">The Complete Practitioner</div>
-    <div class="title">Knee OA Injection Outcome Predictor</div>
-    <div class="subtitle">Clinician-facing tool using full clinical inputs and imaging, with short-, mid- and long-term outcome predictions.</div>
+<style>
+  .step { display:none; }
+  .step.active { display:block; }
+  .step-nav { display:flex; gap:12px; justify-content:space-between; margin-top:16px; }
+  .stepper-header { margin-bottom:14px; }
+  .stepper-title { font-weight:800; font-size:1.05rem; margin-bottom:6px; }
+  .stepper-progress { width:100%; height:10px; background:rgba(0,0,0,0.08); border-radius:999px; overflow:hidden; }
+  body.dark .stepper-progress { background: rgba(255,255,255,0.12); }
+  .stepper-bar { height:100%; width:0%; background: var(--blue); transition: width .25s ease; }
+  .checkbox-grid { display:grid; grid-template-columns: 1fr; gap:10px; }
+  @media (min-width: 720px) { .checkbox-grid { grid-template-columns: 1fr 1fr; } }
+  .check { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid rgba(0,0,0,0.08); border-radius:12px; }
+  body.dark .check { border-color: rgba(255,255,255,0.16); }
+  .check input { transform: translateY(2px); }
+</style>
+
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <img src="logo.png" class="brand-logo" alt="Logo"/>
+      <div>
+        <div class="brand-title">Knee OA Injection Outcome Predictor</div>
+        <div class="brand-sub">Clinician tool (step-by-step)</div>
+      </div>
+    </div>
+    <button id="darkToggle" class="btn-secondary">Dark mode</button>
   </div>
 
-      <button id="startBtn" class="primary-btn">
-      <span class="icon">▶</span>
-      <span>Start assessment</span>
-    </button>
-
-    <div id="formCard" class="card hidden">
-      <h2 style="margin-top:0;">Clinical Inputs</h2>
-
-      <div class="section-title">Patient details &amp; symptoms</div>
-      <div class="grid grid-2">
-        <div>
-          <label for="age">Age (years)</label>
-          <input type="number" id="age" min="18" max="100" />
-        </div>
-        <div>
-          <label for="vas">VAS Pain (0–100)</label>
-          <input type="number" id="vas" min="0" max="100" />
-        </div>
-        <div>
-          <label for="height">Height (cm)</label>
-          <input type="number" id="height" min="100" max="220" />
-        </div>
-        <div>
-          <label for="weight">Weight (kg)</label>
-          <input type="number" id="weight" min="30" max="200" step="0.1" />
-        </div>
-        <div>
-          <label for="bmi">BMI (kg/m²)</label>
-          <input type="number" id="bmi" step="0.1" readonly />
-        </div>
-        <div id="klClinicianBlock" class="mode-clinician">
-          <label for="kl">KL Grade (1–4)</label>
-          <input type="number" id="kl" min="1" max="4" />
-          <p class="small">Clinician-entered Kellgren–Lawrence grade.</p>
-        </div>
-        <div id="klPatientBlock" class="mode-patient mode-hidden">
-          <label for="pt_xray">Have you had an X-ray confirming arthritis in this knee?</label>
-          <select id="pt_xray">
-            <option value="">--</option>
-            <option value="Y">Yes</option>
-            <option value="N">No / Not sure</option>
-          </select>
-          <label for="pt_severity" style="margin-top:0.4rem; display:block;">If yes, how was the arthritis described?</label>
-          <select id="pt_severity">
-            <option value="">--</option>
-            <option value="mild">Mild</option>
-            <option value="mildmod">Mild–Moderate</option>
-            <option value="mod">Moderate</option>
-            <option value="modsev">Moderate–Severe</option>
-            <option value="sev">Severe</option>
-          </select>
-          <p class="small">If you are not sure, you can leave this blank. The prediction will be less precise without severity.</p>
-        </div>
-        <div id="pt_cs_block" class="mode-patient mode-hidden">
-          <label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
-          <select id="pt_cs_response">
-            <option value="">--</option>
-            <option value="none">Never</option>
-            <option value="good">Yes – they helped</option>
-            <option value="poor">Yes – they didn't help much</option>
-          </select>
-          <label for="pt_cs_count" style="margin-top:0.4rem; display:block;">Roughly how many steroid injections have you had into this knee?</label>
-          <select id="pt_cs_count">
-            <option value="">--</option>
-            <option value="none">None</option>
-            <option value="few">1–2</option>
-            <option value="many">3 or more</option>
-          </select>
-        </div>
-
+  <div class="container">
+    <div class="card">
+      <h1 style="margin:0 0 0.25rem 0;">Assessment</h1>
+      <p class="small" style="margin-top:0;">Complete each section and tap <b>Next</b>. Calculate at the end.</p>
+      <div class="grid grid-3">
+        <button id="startBtn" class="btn-primary">Start assessment</button>
+        <button id="calcBtn" class="btn-primary">Calculate prediction</button>
+        <button id="printBtn" class="btn-secondary">Share / Print PDF</button>
       </div>
-
-      <div class="section-divider"></div>
-      <div class="section-title">Knee structural &amp; biomechanical</div>
-      <div class="grid grid-2">
-        <div>
-          <label for="synovitis">Synovitis</label>
-          <select id="synovitis">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-        </div>
-        <div>
-          <label for="effusion">Effusion</label>
-          <select id="effusion">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-        </div>
-        <div>
-          <label for="malalign">Malalignment &gt;5°</label>
-          <select id="malalign">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-        </div>
-        <div>
-          <label for="quadweak">Quadriceps weakness</label>
-          <select id="quadweak">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-        </div>
-        <div id="pt_cs_block" class="mode-patient mode-hidden">
-          <label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
-          <select id="pt_cs_response">
-            <option value="">--</option>
-            <option value="none">Never</option>
-            <option value="good">Yes – they helped</option>
-            <option value="poor">Yes – they didn't help much</option>
-          </select>
-          <label for="pt_cs_count" style="margin-top:0.4rem; display:block;">Roughly how many steroid injections have you had into this knee?</label>
-          <select id="pt_cs_count">
-            <option value="">--</option>
-            <option value="none">None</option>
-            <option value="few">1–2</option>
-            <option value="many">3 or more</option>
-          </select>
-        </div>
-
-      </div>
-
-      <div class="section-divider"></div>
-      <div class="section-title">Systemic risk &amp; injection history</div>
-      <div class="grid grid-2">
-        <div>
-          <label for="metabolic">Systemic comorbidity</label>
-          <select id="metabolic">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-          <p class="small">E.g. diabetes, CVD, autoimmune disease, CKD, CLD.</p>
-        </div>
-        <div>
-          <label for="prior">Prior positive response</label>
-          <select id="prior">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-            <option value="First">First injection</option>
-          </select>
-        </div>
-        <div>
-          <label for="nutr">Nutritional risk</label>
-          <select id="nutr">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-        </div>
-                <div>
-          <label for="diabetes">Diabetes</label>
-          <select id="diabetes">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-        </div>
-        <div>
-          <label for="glaucoma">Glaucoma</label>
-          <select id="glaucoma">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-        </div>
-        <div>
-          <label for="cs12">CS injections last 12 months</label>
-          <input type="number" id="cs12" min="0" />
-          <p class="small">Disabled if this is the first injection.</p>
-        </div>
-        <div>
-          <label for="cslife">CS injections lifetime</label>
-          <input type="number" id="cslife" min="0" />
-          <p class="small">Disabled if this is the first injection.</p>
-        </div>
-        <div id="pt_cs_block" class="mode-patient mode-hidden">
-          <label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
-          <select id="pt_cs_response">
-            <option value="">--</option>
-            <option value="none">Never</option>
-            <option value="good">Yes – they helped</option>
-            <option value="poor">Yes – they didn't help much</option>
-          </select>
-          <label for="pt_cs_count" style="margin-top:0.4rem; display:block;">Roughly how many steroid injections have you had into this knee?</label>
-          <select id="pt_cs_count">
-            <option value="">--</option>
-            <option value="none">None</option>
-            <option value="few">1–2</option>
-            <option value="many">3 or more</option>
-          </select>
-        </div>
-
-      </div>
-
-      <div class="section-divider"></div>
-      <div class="section-t<div class="section-divider"></div>
-      <div class="section-title">PROMs – PCS-6</div>
-      <p class="small">
-        Click to expand the 6-item PCS-6. Each item 0–4 (0 = not at all, 4 = all the time).
-      </p>
-
-      <div class="card" style="margin-top:0.5rem;">
-        <div class="accordion-header">
-          <div><strong>PCS-6 (Pain Catastrophizing – 6 questions)</strong></div>
-          <button type="button" id="pcsToggleBtn" data-target="pcsGrid">Show</button>
-        </div>
-        <div id="pcsGrid" class="womac-grid">
-          <div class="womac-item">
-            <label>1. I worry all the time about whether the pain will end.</label>
-            <select id="pcs1">
-              <option value="0">0</option><option value="1">1</option>
-              <option value="2">2</option><option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-          <div class="womac-item">
-            <label>2. I feel I can’t go on.</label>
-            <select id="pcs2">
-              <option value="0">0</option><option value="1">1</option>
-              <option value="2">2</option><option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-          <div class="womac-item">
-            <label>3. It’s terrible and I think it’s never going to get any better.</label>
-            <select id="pcs3">
-              <option value="0">0</option><option value="1">1</option>
-              <option value="2">2</option><option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-          <div class="womac-item">
-            <label>4. It’s awful and I feel that it overwhelms me.</label>
-            <select id="pcs4">
-              <option value="0">0</option><option value="1">1</option>
-              <option value="2">2</option><option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-          <div class="womac-item">
-            <label>5. I feel I can’t stand it anymore.</label>
-            <select id="pcs5">
-              <option value="0">0</option><option value="1">1</option>
-              <option value="2">2</option><option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-          <div class="womac-item">
-            <label>6. I become afraid that the pain will get worse.</label>
-            <select id="pcs6">
-              <option value="0">0</option><option value="1">1</option>
-              <option value="2">2</option><option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <p class="small">
-        PCS-6 total: <strong><span id="pcsTotalDisplay">0</span></strong>
-        – Band: <strong><span id="pcsBandDisplay">Low</span></strong>
-      </p>
-
-      <div class="toolbar">
-        <button class="btn-secondary" id="calcBtn">Calculate predictions</button>
-        <button class="btn-secondary" id="printBtn">Share / Export as PDF</button>
-      </div>
-
-      <div id="amberWarning" class="amber" style="display:none;"></div>
-      <div id="csWarning" class="warning" style="display:none;"></div>
+      <div id="amberWarning" class="warning amber" style="display:none;"></div>
+      <div id="csWarning" class="warning amber" style="display:none;"></div>
     </div>
 
-    <div id="results" style="margin-top:1rem;"></div>
+    <div class="card hidden" id="formCard">
+      <div class="stepper-header">
+        <div class="stepper-title" id="stepTitle">Section</div>
+        <div class="stepper-progress"><div class="stepper-bar" id="stepBar"></div></div>
+        <div class="small" id="stepCounter"></div>
+      </div>
 
-    <footer>
-      The Complete Practitioner – Knee OA Injection Outcome Predictor · Clinical decision support only – does not replace clinical judgement.
-    </footer>
+      <div class="step" data-title="Baseline">
+        <div class="section-title">Baseline</div>
+        <div class="grid grid-2">
+          <div>
+            <label for="age">Age (years)</label>
+            <input type="number" id="age" min="18" max="100" />
+          </div>
+          <div>
+            <label for="vas">VAS Pain (0–100)</label>
+            <input type="number" id="vas" min="0" max="100" />
+          </div>
+          <div>
+            <label for="height">Height (cm)</label>
+            <input type="number" id="height" min="100" max="220" />
+          </div>
+          <div>
+            <label for="weight">Weight (kg)</label>
+            <input type="number" id="weight" min="30" max="250" />
+          </div>
+          <div>
+            <label for="bmi">BMI (auto)</label>
+            <input type="number" id="bmi" readonly />
+          </div>
+          <div>
+            <label for="kl">KL grade (1–4)</label>
+            <select id="kl">
+              <option value="">--</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" data-title="Inflammation">
+        <div class="section-title">Inflammation</div>
+        <div class="grid grid-2">
+          <div>
+            <label for="synovitis">Synovitis</label>
+            <select id="synovitis">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+          </div>
+          <div>
+            <label for="effusion">Effusion</label>
+            <select id="effusion">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+            <p class="small">If effusion is present, aspiration can improve HA / gel durability.</p>
+          </div>
+          <div id="aspiratedBlock" style="display:none;">
+            <label for="aspirated">If effusion present: aspirated immediately prior?</label>
+            <select id="aspirated">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" data-title="Structure & function">
+        <div class="section-title">Structure &amp; function</div>
+        <div class="grid grid-2">
+          <div>
+            <label for="malalign">Malalignment &gt;5°</label>
+            <select id="malalign">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+          </div>
+          <div>
+            <label for="quadweak">Quadriceps weakness</label>
+            <select id="quadweak">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" data-title="Systemic factors">
+        <div class="section-title">Systemic factors</div>
+        <div class="grid grid-2">
+          <div>
+            <label for="metabolic">Systemic comorbidity</label>
+            <select id="metabolic">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+          </div>
+          <div>
+            <label for="nutr">Nutritional risk</label>
+            <select id="nutr">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+          </div>
+          <div>
+            <label for="diabetes">Diabetes</label>
+            <select id="diabetes">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+          </div>
+          <div>
+            <label for="glaucoma">Glaucoma</label>
+            <select id="glaucoma">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" data-title="Injection history & PCS-6">
+        <div class="section-title">Injection history</div>
+        <div class="grid grid-2">
+          <div>
+            <label for="firstInj">Is this the first injection?</label>
+            <select id="firstInj">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+          </div>
+          <div>
+            <label for="prior">Prior positive response</label>
+            <select id="prior">
+              <option value="">--</option>
+              <option value="Y">Y</option>
+              <option value="N">N</option>
+            </select>
+            <p class="small">Disabled if this is the first injection.</p>
+          </div>
+          <div>
+            <label for="cs12">CS injections last 12 months</label>
+            <input type="number" id="cs12" min="0" max="10" />
+            <p class="small">Disabled if this is the first injection.</p>
+          </div>
+          <div>
+            <label for="cslife">CS injections lifetime</label>
+            <input type="number" id="cslife" min="0" max="20" />
+            <p class="small">Disabled if this is the first injection.</p>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div class="grid grid-2">
+          <div>
+            <div class="section-title" style="margin-top:0;">PCS-6 (optional)</div>
+            <p class="small">Higher PCS tends to reduce response to passive interventions.</p>
+            <button type="button" id="pcsToggleBtn" class="btn-secondary">Show</button>
+          </div>
+          <div class="small">
+            PCS total: <b id="pcsTotalDisplay">0</b> / 24 &nbsp;|&nbsp; Band: <b id="pcsBandDisplay">Low</b>
+          </div>
+        </div>
+
+        <div id="pcsGrid" class="grid grid-2 collapsible">
+          
+          <div>
+            <label for="pcs1">PCS Q1 (0–4)</label>
+            <select id="pcs1">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="pcs2">PCS Q2 (0–4)</label>
+            <select id="pcs2">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="pcs3">PCS Q3 (0–4)</label>
+            <select id="pcs3">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="pcs4">PCS Q4 (0–4)</label>
+            <select id="pcs4">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="pcs5">PCS Q5 (0–4)</label>
+            <select id="pcs5">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="pcs6">PCS Q6 (0–4)</label>
+            <select id="pcs6">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button type="button" id="backBtn" class="btn-secondary">Back</button>
+        <button type="button" id="nextBtn" class="btn-primary">Next section</button>
+      </div>
+    </div>
+
+    <div class="card" id="resultsCard">
+      <h2 style="margin-top:0;">Results</h2>
+      <div id="results"></div>
+    </div>
   </div>
 
-  <button id="resetFab" class="reset-fab" title="Reset form">↺</button>
+  <button id="resetFab" class="fab" title="Reset">↺</button>
 
+  <script src="common.js"></script>
   <script src="clinician.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('service-worker.js').catch(function(err){
-          console.log('SW registration failed', err);
-        });
-      });
-    }
-  </script>
 </body>
 </html>

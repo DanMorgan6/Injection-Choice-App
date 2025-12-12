@@ -1,406 +1,280 @@
-let currentMode = 'patient';
 
 function yn(val) {
   return val === 'Y' ? 1 : 0;
 }
 
-function bandShortMid(idx) {
-  if (idx >= 5) return {text: "High (≥70%)", cls: "band-high"};
-  if (idx >= 2) return {text: "Moderate (40–70%)", cls: "band-mod"};
-  if (idx >= 0) return {text: "Low–moderate (20–40%)", cls: "band-lowmod"};
-  return {text: "Unlikely (<20%)", cls: "band-unlikely"};
+function clamp(x, lo, hi) {
+  return Math.max(lo, Math.min(hi, x));
 }
 
-function bandLong(idx) {
-  if (idx >= 6) return {text: "High (≥70%)", cls: "band-high"};
-  if (idx >= 3) return {text: "Moderate (40–70%)", cls: "band-mod"};
-  if (idx >= 1) return {text: "Low–moderate (20–40%)", cls: "band-lowmod"};
-  return {text: "Unlikely (<20%)", cls: "band-unlikely"};
+function bandShortMid(idx) {
+  if (idx >= 6) return 'High';
+  if (idx >= 3) return 'Moderate';
+  if (idx >= 1) return 'Low–Moderate';
+  return 'Low';
 }
 
 function calcBMI() {
-  const h = parseFloat(document.getElementById('height').value) || 0;
-  const w = parseFloat(document.getElementById('weight').value) || 0;
+  const h = parseFloat(document.getElementById('height')?.value || '');
+  const w = parseFloat(document.getElementById('weight')?.value || '');
   const bmiEl = document.getElementById('bmi');
-  if (h > 0 && w > 0) {
-    const m = h / 100.0;
-    const bmi = w / (m * m);
-    bmiEl.value = bmi.toFixed(1);
-  } else {
-    bmiEl.value = "";
-  }
+  if (!bmiEl) return;
+  if (!h || !w) { bmiEl.value = ''; return; }
+  const m = h / 100.0;
+  const bmi = w / (m*m);
+  bmiEl.value = bmi.toFixed(1);
+  return bmi;
 }
 
 function calcPCS() {
   let total = 0;
-  for (let i = 1; i <= 6; i++) {
-    const el = document.getElementById('pcs' + i);
-    total += parseInt(el.value || "0", 10);
+  for (let i=1;i<=6;i++) {
+    const v = parseInt(document.getElementById('pcs'+i)?.value || '0', 10);
+    total += (isNaN(v)?0:v);
   }
   const totalEl = document.getElementById('pcsTotalDisplay');
   const bandEl = document.getElementById('pcsBandDisplay');
-  totalEl.textContent = total.toString();
-  let band = "Low";
-  if (total >= 15) band = "High";
-  else if (total >= 10) band = "Moderate";
-  bandEl.textContent = band;
-  return { total, band };
+  if (totalEl) totalEl.textContent = String(total);
+  let band = 'Low';
+  if (total >= 15) band = 'High';
+  else if (total >= 10) band = 'Moderate';
+  if (bandEl) bandEl.textContent = band;
+  return total;
 }
 
 function calcWOMAC() {
-  const painIds = ['pain1','pain2','pain3','pain4','pain5'];
-  const stiffIds = ['stiff1','stiff2'];
-  const funcIds = [
-    'func1','func2','func3','func4','func5','func6','func7','func8','func9',
-    'func10','func11','func12','func13','func14','func15','func16','func17'
-  ];
-
-  let pain = 0, stiff = 0, func = 0;
-  painIds.forEach(id => { pain += parseInt(document.getElementById(id).value || "0", 10); });
-  stiffIds.forEach(id => { stiff += parseInt(document.getElementById(id).value || "0", 10); });
-  funcIds.forEach(id => { func += parseInt(document.getElementById(id).value || "0", 10); });
-
+  const get = (id) => parseInt(document.getElementById(id)?.value || '0', 10) || 0;
+  const pain = [1,2,3,4,5].map(i=>get('pain'+i)).reduce((a,b)=>a+b,0);
+  const stiff = [1,2].map(i=>get('stiff'+i)).reduce((a,b)=>a+b,0);
+  const func = Array.from({length:17},(_,i)=>get('func'+(i+1))).reduce((a,b)=>a+b,0);
   const total = pain + stiff + func;
 
-  document.getElementById('womacPainTotal').textContent = pain.toString();
-  document.getElementById('womacStiffTotal').textContent = stiff.toString();
-  document.getElementById('womacFuncTotal').textContent = func.toString();
-  document.getElementById('womacTotal').textContent = total.toString();
+  document.getElementById('womacPainTotal').textContent = String(pain);
+  document.getElementById('womacStiffTotal').textContent = String(stiff);
+  document.getElementById('womacFuncTotal').textContent = String(func);
+  document.getElementById('womacTotal').textContent = String(total);
 
   return { pain, stiff, func, total };
 }
 
-function applyFirstInjectionBehaviour() {
-  const prior = document.getElementById('prior').value;
-  const cs12Field = document.getElementById('cs12');
-  const cslifeField = document.getElementById('cslife');
-  if (!cs12Field || !cslifeField) return;
-
-  if (prior === 'First') {
-    cs12Field.value = 0;
-    cslifeField.value = 0;
-    cs12Field.disabled = true;
-    cslifeField.disabled = true;
-  } else {
-    cs12Field.disabled = false;
-    cslifeField.disabled = false;
-  }
-}
-
-function calculatePredictions() {
-  const age = parseFloat(document.getElementById('age').value) || 0;
-  const kl = parseInt(document.getElementById('kl').value) || 0;
-  let bmi = parseFloat(document.getElementById('bmi').value);
-  const vas = parseFloat(document.getElementById('vas').value) || 0;
-
-  const syn = document.getElementById('synovitis').value;
-  const eff = document.getElementById('effusion').value;
-  const mal = document.getElementById('malalign').value;
-  const quad = document.getElementById('quadweak').value;
-  const prior = document.getElementById('prior').value;
-  const nutr = document.getElementById('nutr').value;
-  // Always assume injections discussed here are image-guided in modern practice.
-  let cs12 = parseInt(document.getElementById('cs12').value) || 0;
-  let cslife = parseInt(document.getElementById('cslife').value) || 0;
-
-  const hasDiabetes = !!document.getElementById('com_diabetes') && document.getElementById('com_diabetes').checked;
-  const hasGlaucoma = !!document.getElementById('com_glaucoma') && document.getElementById('com_glaucoma').checked;
-  const comorbIds = ['com_diabetes','com_cvd','com_ckd','com_cld','com_raid','com_immune'];
-  let comorbCount = 0;
-  comorbIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el && el.checked) comorbCount++;
-  });
-
-  applyFirstInjectionBehaviour();
-  if (prior === 'First') {
-    cs12 = 0;
-    cslife = 0;
-  }
-
-  const womac = calcWOMAC();
-  const womacPain = womac.pain;
-  const womacFunc = womac.func;
-  const womacStiff = womac.stiff;
-
-  if (!bmi || isNaN(bmi)) {
-    const h = parseFloat(document.getElementById('height').value) || 0;
-    const w = parseFloat(document.getElementById('weight').value) || 0;
-    if (h > 0 && w > 0) {
-      const m = h / 100.0;
-      bmi = w / (m * m);
-      document.getElementById('bmi').value = bmi.toFixed(1);
-    } else {
-      bmi = 0;
-    }
-  }
-
-  const pcsInfo = calcPCS();
-  const pcsTotal = pcsInfo.total;
-
-  const amber = document.getElementById('amberWarning');
-  amber.style.display = 'none';
-  amber.innerHTML = '';
-
-  let riskFlag = false;
-
-  if (hasDiabetes) {
-    riskFlag = true;
-    amber.style.display = 'block';
-    amber.innerHTML += '⚠ Diabetes: Steroid injections can temporarily upset blood sugar control for up to 1–2 weeks. Discuss monitoring or non-steroid options with your clinician.<br>';
-  }
-  if (hasGlaucoma) {
-    riskFlag = true;
-    amber.style.display = 'block';
-    amber.innerHTML += '⚠ Glaucoma: Steroid injections can increase pressure inside the eye – your eye specialist or GP should be involved before proceeding.<br>';
-  }
-
-  const csWarning = document.getElementById('csWarning');
-  csWarning.style.display = 'none';
-  if (cs12 >= 3 || cslife >= 5) {
-    csWarning.style.display = 'block';
-    csWarning.textContent = 'High corticosteroid exposure – reconsider further steroid use and emphasise alternatives.';
-  }
-
-  let AgeScore = age < 60 ? 1 : (age < 75 ? 0 : -1);
-  let KLScore;
-  if (kl <= 2) KLScore = 3;
-  else if (kl === 3) KLScore = 1;
-  else if (kl === 4) KLScore = -1;
-  else KLScore = 0;
-
-  let SynScore = yn(syn) * 4;
-  let EffScore = yn(eff) * 1;
-
-  let VASScore;
-  if (vas < 40) VASScore = 1;
-  else if (vas <= 69) VASScore = 0;
-  else VASScore = -1;
-
-  let MalScore = yn(mal) ? -2 : 0;
-
-  let BMIScore;
-  if (bmi > 0 && bmi < 25) BMIScore = 2;
-  else if (bmi >= 25 && bmi <= 30) BMIScore = 0;
-  else if (bmi > 30) BMIScore = -1;
-  else BMIScore = 0;
-
-  let QuadScore = yn(quad) ? -1 : 0;
-  let MetScore = 0;
-  // Condition-specific weighting (more conservative for HA/gel than steroid)
-  const w = {
-    cvd: -0.3,
-    ckd: -0.6,
-    cld: -0.5,
-    raid: -1.2,
-    immune: -0.8
-  };
-  if (document.getElementById('com_cvd')?.checked) MetScore += w.cvd;
-  if (document.getElementById('com_ckd')?.checked) MetScore += w.ckd;
-  if (document.getElementById('com_cld')?.checked) MetScore += w.cld;
-  if (document.getElementById('com_raid')?.checked) MetScore += w.raid;
-  if (document.getElementById('com_immune')?.checked) MetScore += w.immune;
-  // Diabetes/glaucoma drive safety warnings rather than efficacy penalties.
-  if (MetScore < -2.5) MetScore = -2.5;
-
-  let PsychScore = 0;
-  if (pcsTotal >= 15) PsychScore = -1;
-  else if (pcsTotal >= 10) PsychScore = -0.5;
-
-  let PriorScore = (prior === 'Y') ? 2 : 0;
-  let NutrScore = yn(nutr) ? -1 : 0;
-  let IGScore = 1; // assume guided injection as standard of care
-
-  let CSloadScore;
-  if (cslife < 3) CSloadScore = 0;
-  else if (cslife < 5) CSloadScore = -1;
-  else CSloadScore = -2;
-
-  const S = AgeScore + KLScore + SynScore + EffScore + VASScore + MalScore +
-            BMIScore + QuadScore + MetScore + PsychScore + PriorScore +
-            NutrScore + IGScore + CSloadScore;
-
-  let KLcat;
-  if (kl <= 2) KLcat = 1;
-  else if (kl === 3) KLcat = 0;
-  else KLcat = -1;
-
-  let CSloadCat;
-  if (cslife < 3) CSloadCat = 0;
-  else if (cslife < 5) CSloadCat = 1;
-  else CSloadCat = 2;
-
-  const synFlag = yn(syn);
-  const effFlag = yn(eff);
-  const priorPosFlag = (prior === 'Y') ? 1 : 0;
-  const malFlag = yn(mal);
-
-  const womacPainNorm = Math.min(Math.max(womacPain / 20.0, 0), 1);
-  const womacFuncNorm = Math.min(Math.max(womacFunc / 68.0, 0), 1);
-  const womacStiffNorm = Math.min(Math.max(womacStiff / 8.0, 0), 1);
-
-  let CS_short = S + 4 * synFlag + 1 * effFlag + 1 * priorPosFlag - 1 * CSloadCat;
-  let CS_mid   = S + 2 * synFlag - 1 * CSloadCat - 1;
-
-  CS_short += 1.2 * womacPainNorm - 0.3 * womacStiffNorm;
-  CS_mid   += 0.6 * womacPainNorm - 0.4 * womacFuncNorm - 0.3 * womacStiffNorm;
-
-  let HA_short = S - 0.5 * effFlag - 0.2 * synFlag;
-  let HA_mid   = S + 2.5 * KLcat - 1.0 * effFlag - 0.3 * synFlag - (CSloadCat >= 2 ? 1 : 0);
-
-  HA_short += 0.5 * womacPainNorm - 0.2 * womacStiffNorm;
-  HA_mid   += 1.2 * womacFuncNorm + 0.4 * womacPainNorm - 0.3 * womacStiffNorm;
-
-  if (bmi > 35) { HA_short -= 0.5; HA_mid -= 1.0; }
-  let Gel_short = S;
-  // Comorbidity burden: conservative penalty for HA/Gel durability
-  let Gel_long_penalty = 0;
-  const comorbBurden = Math.abs(MetScore);
-  HA_mid -= 0.4 * comorbBurden;
-  Gel_long_penalty = 0.5 * comorbBurden;
-
-  let Gel_mid   = S
-                + 2 * KLcat
-                + 1 * effFlag
-                + 2 * synFlag
-                + (age < 60 ? 2 : (age < 70 ? 1 : 0))
-                + 1.5 * womacFuncNorm
-                + 0.7 * womacStiffNorm;
-
-  let Gel_long = 
-      3 * (age < 60 ? 1 : 0) +
-      2 * ((age >= 60 && age < 70) ? 1 : 0) +
-      1.5 * synFlag +
-      0.5 * effFlag +
-      2 * (kl <= 2 ? 1 : 0) +
-      0.8 * (kl === 3 ? 1 : 0) -
-      2.5 * (kl === 4 ? 1 : 0) -
-      2 * (malFlag ? 1 : 0) +
-      2.0 * womacFuncNorm +
-      1.0 * womacStiffNorm
-      - (typeof Gel_long_penalty !== 'undefined' ? Gel_long_penalty : 0);
-
-  const CS_short_band = bandShortMid(CS_short);
-  const CS_mid_band   = bandShortMid(CS_mid);
-  const HA_short_band = bandShortMid(HA_short);
-  const HA_mid_band   = bandShortMid(HA_mid);
-  const Gel_short_band= bandShortMid(Gel_short);
-  const Gel_mid_band  = bandShortMid(Gel_mid);
-  const Gel_long_band = bandLong(Gel_long);
-
-  const preferredClass = riskFlag ? " preferred" : "";
-  const haPreferredNote = riskFlag
-    ? "<p class='small'><strong>Preferred:</strong> Favour HA over CS in diabetes/glaucoma to avoid systemic steroid effects.</p>"
-    : "<p class='small'>Mid-term benefit favoured in KL1–3 with effusion, higher WOMAC function burden and lower cumulative CS exposure.</p>";
-  const gelPreferredNote = riskFlag
-    ? "<p class='small'><strong>Preferred:</strong> Consider hydrogel as a steroid-sparing option in diabetes/glaucoma.</p>"
-    : "<p class='small'>Long-term durability favoured in &lt;70yrs, KL1–3, synovitis and effusion, higher WOMAC function/stiffness burden, with minimal malalignment.</p>";
-
-  const csCautionNote = riskFlag
-    ? "<p class='small'><strong>Caution:</strong> Diabetes/glaucoma present – if using corticosteroid, counsel carefully and monitor.</p>"
-    : "<p class='small'>Best for synovitic flares and rapid symptom relief. Penalised by high CS load and high WOMAC stiffness mid-term.</p>";
-
-  const res = document.getElementById('results');
-  res.innerHTML = `
-    <div class="card">
-      <h2>Global Summary</h2>
-      <p><strong>Total Score (S):</strong> ${S.toFixed(1)}</p>
-      <p class="small">
-        Higher S = more favourable overall prognosis for injection therapy.
-        PCS-6: <strong>${pcsTotal}</strong> (${document.getElementById('pcsBandDisplay').textContent});
-        WOMAC pain: ${womacPain}/20; stiffness: ${womacStiff}/8; function: ${womacFunc}/68; total: ${womac.pain + womac.stiff + womac.func}/96.
-      </p>
-    </div>
-
-    <div class="grid grid-3">
-      <div class="card result-card cs">
-        <h3>Corticosteroid</h3>
-        <p><strong>Short-term index (0–6w):</strong> ${CS_short.toFixed(1)}
-          <span class="band-pill ${CS_short_band.cls}">${CS_short_band.text}</span>
-        </p>
-        <p><strong>Mid-term index (6w–3m):</strong> ${CS_mid.toFixed(1)}
-          <span class="band-pill ${CS_mid_band.cls}">${CS_mid_band.text}</span>
-        </p>
-        ${csCautionNote}
-      </div>
-
-      <div class="card result-card ha${preferredClass}">
-        <h3>Hyaluronic Acid</h3>
-        <p><strong>Short-term index:</strong> ${HA_short.toFixed(1)}
-          <span class="band-pill ${HA_short_band.cls}">${HA_short_band.text}</span>
-        </p>
-        <p><strong>Mid-term index:</strong> ${HA_mid.toFixed(1)}
-          <span class="band-pill ${HA_mid_band.cls}">${HA_mid_band.text}</span>
-        </p>
-        ${haPreferredNote}
-      </div>
-
-      <div class="card result-card gel${preferredClass}">
-        <h3>Hydrogel / Gel</h3>
-        <p><strong>Short-term index:</strong> ${Gel_short.toFixed(1)}
-          <span class="band-pill ${Gel_short_band.cls}">${Gel_short_band.text}</span>
-        </p>
-        <p><strong>Mid-term index (6w–3m):</strong> ${Gel_mid.toFixed(1)}
-          <span class="band-pill ${Gel_mid_band.cls}">${Gel_mid_band.text}</span>
-        </p>
-        <p><strong>Long-term index (1–5y):</strong> ${Gel_long.toFixed(1)}
-          <span class="band-pill ${Gel_long_band.cls}">${Gel_long_band.text}</span>
-        </p>
-        ${gelPreferredNote}
-      </div>
-    </div>
-  `;
-}
-
-
 function resetForm() {
-  const inputIds = [
-    'age','kl','height','weight','bmi','vas',
-    'synovitis','effusion','malalign','quadweak',
-    'prior','nutr',
-    'cs12','cslife',
-    'pain1','pain2','pain3','pain4','pain5',
-    'stiff1','stiff2',
-    'func1','func2','func3','func4','func5','func6','func7','func8','func9',
-    'func10','func11','func12','func13','func14','func15','func16','func17',
-    'pcs1','pcs2','pcs3','pcs4','pcs5','pcs6'
+  const ids = [
+    'age','vas','height','weight','bmi',
+    'synovitis','effusion','pt_xray','pt_severity','malalign','quadweak',
+    'nutr','pt_cs_response','pt_cs_count','pt_aspirated'
   ];
-  inputIds.forEach(id => {
+  ids.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
-    if (el.tagName === 'SELECT') {
-      el.value = "";
-    } else {
-      el.value = '';
-    }
+    if (el.tagName === 'SELECT') el.value = '';
+    else el.value = '';
   });
 
-  const checkIds = [
-    'com_diabetes','com_glaucoma','com_cvd','com_ckd',
-    'com_cld','com_raid','com_immune','com_none'
-  ];
-  checkIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el && el.type === 'checkbox') el.checked = false;
-  });
+  const checks = ['com_diabetes','com_glaucoma','com_cvd','com_ckd','com_cld','com_raid','com_immune','com_none'];
+  checks.forEach(id => { const el=document.getElementById(id); if(el) el.checked=false; });
+
+  // WOMAC / PCS back to zero
+  for (let i=1;i<=6;i++) document.getElementById('pcs'+i).value = '0';
+  for (let i=1;i<=5;i++) document.getElementById('pain'+i).value = '0';
+  for (let i=1;i<=2;i++) document.getElementById('stiff'+i).value = '0';
+  for (let i=1;i<=17;i++) document.getElementById('func'+i).value = '0';
+  calcPCS();
+  calcWOMAC();
 
   const amber = document.getElementById('amberWarning');
   const csWarning = document.getElementById('csWarning');
-  if (amber) { amber.style.display = 'none'; amber.innerHTML = ''; }
-  if (csWarning) { csWarning.style.display = 'none'; csWarning.textContent = ''; }
-
-  document.getElementById('pcsTotalDisplay').textContent = "0";
-  document.getElementById('pcsBandDisplay').textContent = "Low";
-  document.getElementById('womacPainTotal').textContent = "0";
-  document.getElementById('womacStiffTotal').textContent = "0";
-  document.getElementById('womacFuncTotal').textContent = "0";
-  document.getElementById('womacTotal').textContent = "0";
+  if (amber) { amber.style.display='none'; amber.innerHTML=''; }
+  if (csWarning) { csWarning.style.display='none'; csWarning.textContent=''; }
 
   const results = document.getElementById('results');
   if (results) results.innerHTML = '';
 }
 
+function calculatePredictions() {
+  const amber = document.getElementById('amberWarning');
+  const csWarning = document.getElementById('csWarning');
+  if (amber) { amber.style.display='none'; amber.innerHTML=''; }
+  if (csWarning) { csWarning.style.display='none'; csWarning.textContent=''; }
 
+  // Inputs
+  const age = parseInt(document.getElementById('age')?.value || '0',10) || 0;
+  const vas = parseInt(document.getElementById('vas')?.value || '0',10) || 0;
+  const bmi = parseFloat(document.getElementById('bmi')?.value || '') || calcBMI() || 0;
+
+  // Patient wording mapping:
+  // synovitis select = swelling/puffy
+  // effusion select = warm/hot
+  const swelling = document.getElementById('synovitis')?.value || '';
+  const warm = document.getElementById('effusion')?.value || '';
+
+  const xray = document.getElementById('pt_xray')?.value || '';
+  const severity = document.getElementById('pt_severity')?.value || '';
+  const mal = document.getElementById('malalign')?.value || '';
+  const quad = document.getElementById('quadweak')?.value || '';
+  const nutr = document.getElementById('nutr')?.value || '';
+
+  const csResp = document.getElementById('pt_cs_response')?.value || '';
+  const csCount = document.getElementById('pt_cs_count')?.value || '';
+
+  // Aspiration (only meaningful if swelling)
+  const asp = document.getElementById('pt_aspirated')?.value || '';
+
+  // Comorbidities
+  const hasDiabetes = !!document.getElementById('com_diabetes')?.checked;
+  const hasGlaucoma = !!document.getElementById('com_glaucoma')?.checked;
+  const comCVD = !!document.getElementById('com_cvd')?.checked;
+  const comCKD = !!document.getElementById('com_ckd')?.checked;
+  const comCLD = !!document.getElementById('com_cld')?.checked;
+  const comRA = !!document.getElementById('com_raid')?.checked;
+  const comImm = !!document.getElementById('com_immune')?.checked;
+
+  // Warnings
+  if (hasDiabetes && amber) {
+    amber.style.display='block';
+    amber.innerHTML += '⚠ Diabetes: steroid injections can temporarily upset blood sugar control for up to 1–2 weeks. Discuss monitoring or non-steroid options.<br>';
+  }
+  if (hasGlaucoma && amber) {
+    amber.style.display='block';
+    amber.innerHTML += '⚠ Glaucoma: steroid injections can increase pressure inside the eye. Consider non-steroid options or seek medical advice.<br>';
+  }
+
+  // Scores
+  // AgeScore: small negative with age (patient version)
+  let AgeScore = 0;
+  if (age >= 80) AgeScore = -1.2;
+  else if (age >= 70) AgeScore = -0.8;
+  else if (age >= 60) AgeScore = -0.3;
+  else AgeScore = 0.3;
+
+  // StageScore based on severity (only if xray yes)
+  let StageScore = 0;
+  if (xray === 'Y') {
+    if (severity === 'mild') StageScore = 1.2;
+    else if (severity === 'mildmod') StageScore = 0.8;
+    else if (severity === 'mod') StageScore = 0.2;
+    else if (severity === 'modsev') StageScore = -0.8;
+    else if (severity === 'sev') StageScore = -1.6;
+    else StageScore = 0; // unknown
+  } else if (xray === 'N') {
+    StageScore = -0.2; // slightly less confident without imaging
+  }
+
+  // Inflammation from swelling/warm
+  const SwellY = (swelling === 'Y') ? 1 : 0;
+  const WarmY = (warm === 'Y') ? 1 : 0;
+  const InflammScore = 1.2*SwellY + 1.2*WarmY;
+
+  // BMIScore (conservative for HA/gels; small baseline effect)
+  let BMIScore = 0;
+  if (bmi >= 35) BMIScore = -1.0;
+  else if (bmi >= 30) BMIScore = -0.6;
+  else if (bmi >= 27) BMIScore = -0.2;
+  else BMIScore = 0.2;
+
+  // Alignment
+  let AlignScore = (mal === 'Y') ? -0.6 : 0;
+
+  // Quad penalty (Option C scaling)
+  let QuadPenalty = 0;
+  if (quad === 'abit') QuadPenalty = -0.3;
+  else if (quad === 'hard') QuadPenalty = -0.7;
+  else if (quad === 'cant') QuadPenalty = -1.0;
+
+  // Nutrition
+  let NutrScore = (nutr === 'Y') ? -0.5 : 0;
+
+  // Comorbidity penalty (typed, conservative)
+  let ComorbPenalty = 0;
+  if (comCVD) ComorbPenalty += 0.3;
+  if (comCKD) ComorbPenalty += 0.6;
+  if (comCLD) ComorbPenalty += 0.5;
+  if (comRA)  ComorbPenalty += 1.2;
+  if (comImm) ComorbPenalty += 0.8;
+  if (hasDiabetes) ComorbPenalty += 0.0; // warning-driven; minimal outcome penalty
+  ComorbPenalty = clamp(ComorbPenalty, 0, 2.5);
+
+  // PCS + WOMAC
+  const pcsTotal = calcPCS();
+  const womac = calcWOMAC();
+  const womacPainNorm = clamp(womac.pain/20.0, 0, 1);
+  const womacFuncNorm = clamp(womac.func/68.0, 0, 1);
+  const womacStiffNorm = clamp(womac.stiff/8.0, 0, 1);
+
+  let PsychPenalty = 0;
+  if (pcsTotal >= 15) PsychPenalty = 1.0;
+  else if (pcsTotal >= 10) PsychPenalty = 0.5;
+
+  // SymptomScore (conservative weight)
+  const SymptomScore = 2.0*womacPainNorm + 1.5*womacFuncNorm + 0.5*womacStiffNorm; // 0..4
+  const VASScore = clamp((vas-50)/25.0, -2, 2) * 0.4; // small modulator
+
+  // Prior & CS load
+  let PriorScore = 0;
+  if (csResp === 'good') PriorScore = 0.8;
+  else if (csResp === 'poor') PriorScore = -0.6;
+
+  let CSloadPenalty = 0;
+  if (csCount === 'few') CSloadPenalty = 0.5;
+  else if (csCount === 'many') CSloadPenalty = 1.2;
+
+  // Baseline index
+  const S = AgeScore + StageScore + BMIScore + AlignScore + QuadPenalty + NutrScore - ComorbPenalty + (SymptomScore*1.2) + VASScore - PsychPenalty;
+
+  // Treatment indices (conservative HA/gel)
+  let CS_short = 0.9*S + 1.0*InflammScore + 0.5*PriorScore - 0.6*CSloadPenalty;
+  let CS_mid   = 0.5*S + 0.3*InflammScore + 0.2*PriorScore - 1.0*CSloadPenalty;
+
+  let HA_short = 0.6*S - 0.3*InflammScore - 0.3*ComorbPenalty + 0.2*StageScore;
+  let HA_mid   = 0.9*S - 0.9*InflammScore - 0.7*ComorbPenalty + 0.4*StageScore - 0.4*BMIScore;
+
+  let Gel_mid  = 0.95*S - 0.35*InflammScore - 0.6*ComorbPenalty + 0.3*StageScore - 0.2*BMIScore;
+  let Gel_long = 0.75*S - 0.25*InflammScore - 0.7*ComorbPenalty + 0.2*StageScore - 0.2*BMIScore;
+
+  // Aspiration modifier: only if swelling reported and aspiration usually done
+  const aspY = (SwellY === 1) && (asp === 'Y');
+  if (aspY) {
+    CS_short += 0.2;
+    CS_mid += 0.1;
+    HA_mid += 0.5;
+    Gel_mid += 0.2;
+    Gel_long += 0.2;
+  }
+
+  // Clamp
+  const cap = (x) => clamp(x, -2, 8);
+  CS_short = cap(CS_short); CS_mid = cap(CS_mid);
+  HA_short = cap(HA_short); HA_mid = cap(HA_mid);
+  Gel_mid = cap(Gel_mid); Gel_long = cap(Gel_long);
+
+  // Build results
+  const results = document.getElementById('results');
+  if (!results) return;
+
+  const cards = [
+    { title: 'Corticosteroid', short: CS_short, mid: CS_mid, note: 'Short-term often best when the knee is warm/swollen.' },
+    { title: 'Hyaluronic Acid (e.g., Sinovial 64 / Sinogel)', short: HA_short, mid: HA_mid, note: 'Typically best mid-term in mild–moderate OA.' },
+    { title: 'Hydrogel', short: null, mid: Gel_mid, long: Gel_long, note: 'Designed for longer durability; results vary by stage and inflammation.' }
+  ];
+
+  function band(val){ return bandShortMid(val); }
+  function pct(val){ return Math.round(clamp((val+2)/10,0,1)*100); }
+
+  results.innerHTML = cards.map(c => {
+    const shortHtml = (c.short===null) ? '' : `<div class="pill">Short-term: <b>${band(c.short)}</b> (${pct(c.short)}%)</div>`;
+    const midHtml = `<div class="pill">Mid-term: <b>${band(c.mid)}</b> (${pct(c.mid)}%)</div>`;
+    const longHtml = (c.long===undefined) ? '' : `<div class="pill">Long-term: <b>${band(c.long)}</b> (${pct(c.long)}%)</div>`;
+    return `
+      <div class="result-card">
+        <div class="result-title">${c.title}</div>
+        <div class="pillrow">${shortHtml}${midHtml}${longHtml}</div>
+        <div class="small">${c.note}</div>
+      </div>
+    `;
+  }).join('');
+
+  const resultsCard = document.getElementById('resultsCard');
+  if (resultsCard) window.scrollTo({ top: resultsCard.offsetTop - 10, behavior: 'smooth' });
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   const startBtn = document.getElementById('startBtn');
@@ -410,39 +284,98 @@ document.addEventListener('DOMContentLoaded', function() {
   const resetFab = document.getElementById('resetFab');
   const darkToggle = document.getElementById('darkToggle');
 
+  // Stepper
+  const steps = Array.from(document.querySelectorAll('.step'));
+  let stepIndex = 0;
+  const nextBtn = document.getElementById('nextBtn');
+  const backBtn = document.getElementById('backBtn');
+  const stepTitle = document.getElementById('stepTitle');
+  const stepCounter = document.getElementById('stepCounter');
+  const stepBar = document.getElementById('stepBar');
+
+  function showStep(i) {
+    stepIndex = Math.max(0, Math.min(i, steps.length - 1));
+    steps.forEach((s, idx) => s.classList.toggle('active', idx === stepIndex));
+    const title = steps[stepIndex].getAttribute('data-title') || `Section ${stepIndex+1}`;
+    if (stepTitle) stepTitle.textContent = title;
+    if (stepCounter) stepCounter.textContent = `Step ${stepIndex+1} of ${steps.length}`;
+    if (stepBar) stepBar.style.width = `${Math.round(((stepIndex+1)/steps.length)*100)}%`;
+    if (backBtn) backBtn.style.visibility = stepIndex === 0 ? 'hidden' : 'visible';
+    if (nextBtn) nextBtn.textContent = stepIndex === steps.length-1 ? 'Finish' : 'Next section';
+  }
+
   if (startBtn && formCard) {
     startBtn.addEventListener('click', function() {
       formCard.classList.toggle('hidden');
-      window.scrollTo({ top: formCard.offsetTop - 10, behavior: 'smooth' });
+      if (!formCard.classList.contains('hidden')) {
+        showStep(0);
+        window.scrollTo({ top: formCard.offsetTop - 10, behavior: 'smooth' });
+      }
     });
   }
 
-  if (calcBtn) calcBtn.addEventListener('click', calculatePredictions);
-  if (printBtn) printBtn.addEventListener('click', () => window.print());
-  if (resetFab) resetFab.addEventListener('click', resetForm);
-  if (darkToggle) darkToggle.addEventListener('click', () => document.body.classList.toggle('dark'));
+  if (nextBtn) nextBtn.addEventListener('click', function() {
+    if (stepIndex < steps.length - 1) {
+      showStep(stepIndex + 1);
+      window.scrollTo({ top: formCard.offsetTop - 10, behavior: 'smooth' });
+    } else {
+      calculatePredictions();
+    }
+  });
 
+  if (backBtn) backBtn.addEventListener('click', function() {
+    if (stepIndex > 0) {
+      showStep(stepIndex - 1);
+      window.scrollTo({ top: formCard.offsetTop - 10, behavior: 'smooth' });
+    }
+  });
+
+  // X-ray severity enable/disable
+  const xraySel = document.getElementById('pt_xray');
+  const sevSel = document.getElementById('pt_severity');
+  function updateSeverityState() {
+    if (!sevSel) return;
+    if (xraySel && xraySel.value === 'Y') {
+      sevSel.disabled = false;
+    } else {
+      sevSel.value = '';
+      sevSel.disabled = true;
+    }
+  }
+  if (xraySel) xraySel.addEventListener('change', updateSeverityState);
+  updateSeverityState();
+
+  // Aspiration question shown only if swelling yes (synovitis select)
+  const swellSel = document.getElementById('synovitis');
+  const aspBlock = document.getElementById('pt_aspirated_block');
+  const aspSel = document.getElementById('pt_aspirated');
+  function updateAspBlock() {
+    const show = swellSel && swellSel.value === 'Y';
+    if (aspBlock) aspBlock.style.display = show ? 'block' : 'none';
+    if (!show && aspSel) aspSel.value = '';
+  }
+  if (swellSel) swellSel.addEventListener('change', updateAspBlock);
+  updateAspBlock();
+
+  // Comorbidity "None" logic
+  const none = document.getElementById('com_none');
+  const others = ['com_diabetes','com_glaucoma','com_cvd','com_ckd','com_cld','com_raid','com_immune']
+    .map(id => document.getElementById(id)).filter(Boolean);
+
+  if (none) none.addEventListener('change', () => {
+    if (none.checked) others.forEach(el => el.checked = false);
+  });
+  others.forEach(el => el.addEventListener('change', () => {
+    if (el.checked && none) none.checked = false;
+  }));
+
+  // BMI + questionnaires live
   const h = document.getElementById('height');
   const w = document.getElementById('weight');
   if (h) h.addEventListener('input', calcBMI);
   if (w) w.addEventListener('input', calcBMI);
 
-  for (let i = 1; i <= 6; i++) {
-    const el = document.getElementById('pcs' + i);
-    if (el) el.addEventListener('change', calcPCS);
-  }
-
-  const womacIds = [
-    'pain1','pain2','pain3','pain4','pain5',
-    'stiff1','stiff2',
-    'func1','func2','func3','func4','func5','func6','func7','func8','func9',
-    'func10','func11','func12','func13','func14','func15','func16','func17'
-  ];
-  womacIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', calcWOMAC);
-  });
-
+  // WOMAC/PCS toggles
   const womacToggleBtn = document.getElementById('womacToggleBtn');
   const womacGrid = document.getElementById('womacGrid');
   if (womacToggleBtn && womacGrid) {
@@ -452,7 +385,6 @@ document.addEventListener('DOMContentLoaded', function() {
       womacToggleBtn.textContent = show ? 'Hide' : 'Show';
     });
   }
-
   const pcsToggleBtn = document.getElementById('pcsToggleBtn');
   const pcsGrid = document.getElementById('pcsGrid');
   if (pcsToggleBtn && pcsGrid) {
@@ -462,4 +394,21 @@ document.addEventListener('DOMContentLoaded', function() {
       pcsToggleBtn.textContent = show ? 'Hide' : 'Show';
     });
   }
+
+  for (let i=1;i<=6;i++) document.getElementById('pcs'+i).addEventListener('change', calcPCS);
+  const womacIds = [
+    'pain1','pain2','pain3','pain4','pain5',
+    'stiff1','stiff2',
+    'func1','func2','func3','func4','func5','func6','func7','func8','func9',
+    'func10','func11','func12','func13','func14','func15','func16','func17'
+  ];
+  womacIds.forEach(id => document.getElementById(id).addEventListener('change', calcWOMAC));
+  calcPCS(); calcWOMAC();
+
+  if (calcBtn) calcBtn.addEventListener('click', calculatePredictions);
+  if (printBtn) printBtn.addEventListener('click', () => window.print());
+  if (resetFab) resetFab.addEventListener('click', resetForm);
+  if (darkToggle) darkToggle.addEventListener('click', () => document.body.classList.toggle('dark'));
+
+  showStep(0);
 });
