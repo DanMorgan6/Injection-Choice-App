@@ -97,15 +97,20 @@ function calculatePredictions() {
   const eff = document.getElementById('effusion').value;
   const mal = document.getElementById('malalign').value;
   const quad = document.getElementById('quadweak').value;
-  const metabolic = document.getElementById('metabolic').value;
   const prior = document.getElementById('prior').value;
   const nutr = document.getElementById('nutr').value;
-  const guided = document.getElementById('guided').value;
+  // Always assume injections discussed here are image-guided in modern practice.
   let cs12 = parseInt(document.getElementById('cs12').value) || 0;
   let cslife = parseInt(document.getElementById('cslife').value) || 0;
 
-  const diabetes = document.getElementById('diabetes').value;
-  const glaucoma = document.getElementById('glaucoma').value;
+  const hasDiabetes = !!document.getElementById('com_diabetes') && document.getElementById('com_diabetes').checked;
+  const hasGlaucoma = !!document.getElementById('com_glaucoma') && document.getElementById('com_glaucoma').checked;
+  const comorbIds = ['com_diabetes','com_cvd','com_ckd','com_cld','com_raid','com_immune'];
+  let comorbCount = 0;
+  comorbIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.checked) comorbCount++;
+  });
 
   applyFirstInjectionBehaviour();
   if (prior === 'First') {
@@ -139,15 +144,15 @@ function calculatePredictions() {
 
   let riskFlag = false;
 
-  if (diabetes === 'Y') {
+  if (hasDiabetes) {
     riskFlag = true;
     amber.style.display = 'block';
-    amber.innerHTML += '⚠ This patient has diabetes. Corticosteroid injections may destabilise blood glucose for up to 1–2 weeks. Monitor closely or consider a non-steroid option.<br>';
+    amber.innerHTML += '⚠ Diabetes: Steroid injections can temporarily upset blood sugar control for up to 1–2 weeks. Discuss monitoring or non-steroid options with your clinician.<br>';
   }
-  if (glaucoma === 'Y') {
+  if (hasGlaucoma) {
     riskFlag = true;
     amber.style.display = 'block';
-    amber.innerHTML += '⚠ This patient has glaucoma. Corticosteroids can increase intra-ocular pressure – consider non-steroid options or seek ophthalmology advice.<br>';
+    amber.innerHTML += '⚠ Glaucoma: Steroid injections can increase pressure inside the eye – your eye specialist or GP should be involved before proceeding.<br>';
   }
 
   const csWarning = document.getElementById('csWarning');
@@ -181,7 +186,22 @@ function calculatePredictions() {
   else BMIScore = 0;
 
   let QuadScore = yn(quad) ? -1 : 0;
-  let MetScore = yn(metabolic) ? -1 : 0;
+  let MetScore = 0;
+  // Condition-specific weighting (more conservative for HA/gel than steroid)
+  const w = {
+    cvd: -0.3,
+    ckd: -0.6,
+    cld: -0.5,
+    raid: -1.2,
+    immune: -0.8
+  };
+  if (document.getElementById('com_cvd')?.checked) MetScore += w.cvd;
+  if (document.getElementById('com_ckd')?.checked) MetScore += w.ckd;
+  if (document.getElementById('com_cld')?.checked) MetScore += w.cld;
+  if (document.getElementById('com_raid')?.checked) MetScore += w.raid;
+  if (document.getElementById('com_immune')?.checked) MetScore += w.immune;
+  // Diabetes/glaucoma drive safety warnings rather than efficacy penalties.
+  if (MetScore < -2.5) MetScore = -2.5;
 
   let PsychScore = 0;
   if (pcsTotal >= 15) PsychScore = -1;
@@ -189,7 +209,7 @@ function calculatePredictions() {
 
   let PriorScore = (prior === 'Y') ? 2 : 0;
   let NutrScore = yn(nutr) ? -1 : 0;
-  let IGScore = yn(guided) ? 1 : 0;
+  let IGScore = 1; // assume guided injection as standard of care
 
   let CSloadScore;
   if (cslife < 3) CSloadScore = 0;
@@ -225,13 +245,20 @@ function calculatePredictions() {
   CS_short += 1.2 * womacPainNorm - 0.3 * womacStiffNorm;
   CS_mid   += 0.6 * womacPainNorm - 0.4 * womacFuncNorm - 0.3 * womacStiffNorm;
 
-  let HA_short = S + 1 * effFlag;
-  let HA_mid   = S + 3 * KLcat + 1 * effFlag - (CSloadCat >= 2 ? 1 : 0);
+  let HA_short = S - 0.5 * effFlag - 0.2 * synFlag;
+  let HA_mid   = S + 2.5 * KLcat - 1.0 * effFlag - 0.3 * synFlag - (CSloadCat >= 2 ? 1 : 0);
 
   HA_short += 0.5 * womacPainNorm - 0.2 * womacStiffNorm;
   HA_mid   += 1.2 * womacFuncNorm + 0.4 * womacPainNorm - 0.3 * womacStiffNorm;
 
+  if (bmi > 35) { HA_short -= 0.5; HA_mid -= 1.0; }
   let Gel_short = S;
+  // Comorbidity burden: conservative penalty for HA/Gel durability
+  let Gel_long_penalty = 0;
+  const comorbBurden = Math.abs(MetScore);
+  HA_mid -= 0.4 * comorbBurden;
+  Gel_long_penalty = 0.5 * comorbBurden;
+
   let Gel_mid   = S
                 + 2 * KLcat
                 + 1 * effFlag
@@ -243,14 +270,15 @@ function calculatePredictions() {
   let Gel_long = 
       3 * (age < 60 ? 1 : 0) +
       2 * ((age >= 60 && age < 70) ? 1 : 0) +
-      2 * synFlag +
-      1 * effFlag +
+      1.5 * synFlag +
+      0.5 * effFlag +
       2 * (kl <= 2 ? 1 : 0) +
-      1 * (kl === 3 ? 1 : 0) -
-      2 * (kl === 4 ? 1 : 0) -
+      0.8 * (kl === 3 ? 1 : 0) -
+      2.5 * (kl === 4 ? 1 : 0) -
       2 * (malFlag ? 1 : 0) +
       2.0 * womacFuncNorm +
-      1.0 * womacStiffNorm;
+      1.0 * womacStiffNorm
+      - (typeof Gel_long_penalty !== 'undefined' ? Gel_long_penalty : 0);
 
   const CS_short_band = bandShortMid(CS_short);
   const CS_mid_band   = bandShortMid(CS_mid);
@@ -324,12 +352,12 @@ function calculatePredictions() {
   `;
 }
 
+
 function resetForm() {
-  const ids = [
+  const inputIds = [
     'age','kl','height','weight','bmi','vas',
     'synovitis','effusion','malalign','quadweak',
-    'metabolic','diabetes','glaucoma',
-    'prior','nutr','guided',
+    'prior','nutr',
     'cs12','cslife',
     'pain1','pain2','pain3','pain4','pain5',
     'stiff1','stiff2',
@@ -337,15 +365,30 @@ function resetForm() {
     'func10','func11','func12','func13','func14','func15','func16','func17',
     'pcs1','pcs2','pcs3','pcs4','pcs5','pcs6'
   ];
-  ids.forEach(id => {
+  inputIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     if (el.tagName === 'SELECT') {
-      el.value = "0";
+      el.value = "";
     } else {
       el.value = '';
     }
   });
+
+  const checkIds = [
+    'com_diabetes','com_glaucoma','com_cvd','com_ckd',
+    'com_cld','com_raid','com_immune','com_none'
+  ];
+  checkIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.type === 'checkbox') el.checked = false;
+  });
+
+  const amber = document.getElementById('amberWarning');
+  const csWarning = document.getElementById('csWarning');
+  if (amber) { amber.style.display = 'none'; amber.innerHTML = ''; }
+  if (csWarning) { csWarning.style.display = 'none'; csWarning.textContent = ''; }
+
   document.getElementById('pcsTotalDisplay').textContent = "0";
   document.getElementById('pcsBandDisplay').textContent = "Low";
   document.getElementById('womacPainTotal').textContent = "0";
@@ -353,73 +396,13 @@ function resetForm() {
   document.getElementById('womacFuncTotal').textContent = "0";
   document.getElementById('womacTotal').textContent = "0";
 
-  const amber = document.getElementById('amberWarning');
-  const csWarning = document.getElementById('csWarning');
   const results = document.getElementById('results');
-  if (amber) { amber.style.display = 'none'; amber.innerHTML = ''; }
-  if (csWarning) { csWarning.style.display = 'none'; csWarning.innerHTML = ''; }
-  if (results) { results.innerHTML = ''; }
-
-  applyFirstInjectionBehaviour();
+  if (results) results.innerHTML = '';
 }
 
+
+
 document.addEventListener('DOMContentLoaded', function() {
-  const xraySel = document.getElementById('pt_xray');
-  const sevSel = document.getElementById('pt_severity');
-  if (xraySel && sevSel) {
-    function updateSeverityState() {
-      if (xraySel.value === 'Y') {
-        sevSel.disabled = false;
-      } else {
-        sevSel.value = "";
-        sevSel.disabled = true;
-      }
-    }
-    xraySel.addEventListener('change', updateSeverityState);
-    updateSeverityState();
-  }
-
-
-  const modeClinicianBtn = document.getElementById('modeClinicianBtn');
-  const modePatientBtn = document.getElementById('modePatientBtn');
-
-  function setMode(mode) {
-    currentMode = mode;
-    if (modeClinicianBtn && modePatientBtn) {
-      if (mode === 'clinician') {
-        modeClinicianBtn.classList.add('mode-active');
-        modePatientBtn.classList.remove('mode-active');
-      } else {
-        modePatientBtn.classList.add('mode-active');
-        modeClinicianBtn.classList.remove('mode-active');
-      }
-    }
-    // Toggle clinician vs patient specific blocks
-    const klClin = document.getElementById('klClinicianBlock');
-    const klPat = document.getElementById('klPatientBlock');
-    const ptCsBlock = document.getElementById('pt_cs_block');
-    if (klClin && klPat) {
-      if (mode === 'clinician') {
-        klClin.classList.remove('mode-hidden');
-        klPat.classList.add('mode-hidden');
-      } else {
-        klClin.classList.add('mode-hidden');
-        klPat.classList.remove('mode-hidden');
-      }
-    }
-    if (ptCsBlock) {
-      if (mode === 'clinician') ptCsBlock.classList.add('mode-hidden');
-      else ptCsBlock.classList.remove('mode-hidden');
-    }
-  }
-
-  if (modeClinicianBtn) {
-    modeClinicianBtn.addEventListener('click', () => setMode('clinician'));
-  }
-  if (modePatientBtn) {
-    modePatientBtn.addEventListener('click', () => setMode('patient'));
-  }
-
   const startBtn = document.getElementById('startBtn');
   const formCard = document.getElementById('formCard');
   const calcBtn = document.getElementById('calcBtn');
@@ -434,13 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  if (calcBtn) calcBtn.addEventListener('click', () => {
-    if (currentMode === 'patient') {
-      calculatePatientPredictions();
-    } else {
-      calculatePredictions();
-    }
-  });
+  if (calcBtn) calcBtn.addEventListener('click', calculatePredictions);
   if (printBtn) printBtn.addEventListener('click', () => window.print());
   if (resetFab) resetFab.addEventListener('click', resetForm);
   if (darkToggle) darkToggle.addEventListener('click', () => document.body.classList.toggle('dark'));
@@ -485,220 +462,4 @@ document.addEventListener('DOMContentLoaded', function() {
       pcsToggleBtn.textContent = show ? 'Hide' : 'Show';
     });
   }
-
-  const priorSelect = document.getElementById('prior');
-  if (priorSelect) {
-    priorSelect.addEventListener('change', applyFirstInjectionBehaviour);
-  }
-
-
-function calculatePatientPredictions() {
-  // Use WOMAC & PCS from existing inputs
-  const womac = calcWOMAC();
-  const womacPain = womac.pain;
-  const womacFunc = womac.func;
-  const womacStiff = womac.stiff;
-
-  const pcsInfo = calcPCS();
-  const pcsTotal = pcsInfo.total;
-
-  const PainNorm  = Math.min(Math.max(womacPain / 20.0, 0), 1);
-  const FuncNorm  = Math.min(Math.max(womacFunc / 68.0, 0), 1);
-  const StiffNorm = Math.min(Math.max(womacStiff / 8.0, 0), 1);
-  const PCSNorm   = Math.min(Math.max(pcsTotal / 24.0, 0), 1);
-
-  const SymptomScore = 3*PainNorm + 2*FuncNorm + 1*StiffNorm;
-  const PsychPenalty = 1.5 * PCSNorm;
-
-  const age = parseFloat(document.getElementById('age').value) || 0;
-  let AgeScore = 0;
-  if (age > 0 && age < 55) AgeScore = 1;
-  else if (age >= 70) AgeScore = -1;
-
-  // X-ray based stage
-  const xray = (document.getElementById('pt_xray') || {}).value || "";
-  const sev = (document.getElementById('pt_severity') || {}).value || "";
-  let StageScore = 0;
-  if (xray === 'Y') {
-    if (sev === 'mild') StageScore = 2.0;
-    else if (sev === 'mildmod') StageScore = 1.5;
-    else if (sev === 'mod') StageScore = 0.0;
-    else if (sev === 'modsev') StageScore = -0.5;
-    else if (sev === 'sev') StageScore = -1.0;
-  }
-
-  // Inflammatory features – approximate from synovitis/effusion selects
-  const syn = (document.getElementById('synovitis') || {}).value || "";
-  const eff = (document.getElementById('effusion') || {}).value || "";
-  const SwellingY = (eff === 'Y') ? 1 : 0;
-  const WarmY = (syn === 'Y') ? 1 : 0;
-  const InflammScore = 1.5*SwellingY + 1.5*WarmY;
-
-  // Prior steroid response & count from patient fields
-  const csResp = (document.getElementById('pt_cs_response') || {}).value || "";
-  const csCount = (document.getElementById('pt_cs_count') || {}).value || "";
-
-  let PriorScore = 0;
-  if (csResp === 'good') PriorScore = 1.5;
-  else if (csResp === 'poor') PriorScore = -1.0;
-
-  let CSloadPenalty = 0;
-  if (csCount === 'few') CSloadPenalty = -0.5;
-  else if (csCount === 'many') CSloadPenalty = -1.5;
-
-  
-  // Quadriceps difficulty from chair stand question
-  const quadVal = (document.getElementById('quadweak') || {}).value || "";
-  let QuadPenalty = 0;
-  if (quadVal === 'abit') QuadPenalty = -0.3;
-  else if (quadVal === 'hard') QuadPenalty = -0.7;
-  else if (quadVal === 'cant') QuadPenalty = -1.0;
-
-  const BaselineIndex = SymptomScore - PsychPenalty + AgeScore + StageScore + QuadPenalty;
-
-
-  const CS_short = BaselineIndex
-                 + 2.0*InflammScore
-                 + 0.75*PriorScore
-                 - CSloadPenalty;
-
-  const CS_mid = BaselineIndex
-               + 1.0*InflammScore
-               + 0.5*PriorScore
-               - 1.5*CSloadPenalty
-               - 0.5*StiffNorm;
-
-  const HA_short = BaselineIndex
-                 + 0.5*InflammScore
-                 - 0.5*CSloadPenalty;
-
-  const HA_mid = BaselineIndex
-               + 1.5*StageScore
-               + 1.2*FuncNorm
-               + 0.3*PainNorm
-               - 0.3*StiffNorm
-               - 0.5*CSloadPenalty;
-
-  const Gel_short = BaselineIndex
-                  + 1.0*InflammScore;
-
-  const Gel_mid = BaselineIndex
-                + 1.2*StageScore
-                + 1.5*FuncNorm
-                + 0.7*StiffNorm;
-
-  let AgeLongBonus = 0;
-  if (age > 0 && age < 60) AgeLongBonus = 2;
-  else if (age >= 60 && age < 70) AgeLongBonus = 1;
-
-  const Gel_long = 2.0*StageScore
-                 + 2.0*FuncNorm
-                 + 1.0*StiffNorm
-                 + AgeLongBonus;
-
-  function bandPatient(idx) {
-    if (idx >= 6) return {text: "High (≥70%)", cls: "band-high"};
-    if (idx >= 3) return {text: "Moderate (40–70%)", cls: "band-mod"};
-    if (idx >= 1) return {text: "Low–moderate (20–40%)", cls: "band-lowmod"};
-    return {text: "Unlikely (<20%)", cls: "band-unlikely"};
-  }
-
-  const CS_short_band = bandPatient(CS_short);
-  const CS_mid_band   = bandPatient(CS_mid);
-  const HA_short_band = bandPatient(HA_short);
-  const HA_mid_band   = bandPatient(HA_mid);
-  const Gel_short_band= bandPatient(Gel_short);
-  const Gel_mid_band  = bandPatient(Gel_mid);
-  const Gel_long_band = bandPatient(Gel_long);
-
-  // Simple patient-facing warnings
-  const diabetes = (document.getElementById('diabetes') || {}).value || "";
-  const glaucoma = (document.getElementById('glaucoma') || {}).value || "";
-
-  let safetyNotes = "";
-  if (diabetes === 'Y') {
-    safetyNotes += "• You reported diabetes – steroid injections can temporarily raise blood sugar for 1–2 weeks. This should be discussed with your clinician.<br>";
-  }
-  if (glaucoma === 'Y') {
-    safetyNotes += "• You reported glaucoma – steroids can increase eye pressure in some people. Alternatives may be preferred.<br>";
-  }
-  if (csCount === 'many') {
-    safetyNotes += "• You have had several steroid injections already – further injections may have less benefit. Other options may be worth exploring.<br>";
-  }
-  if (!safetyNotes) {
-    safetyNotes = "No specific safety flags from your answers – your clinician will still need to confirm this against your full medical history.";
-  }
-
-  const res = document.getElementById('results');
-  if (!res) return;
-
-  res.innerHTML = `
-    <div class="card">
-      <h2>Patient Mode – Summary</h2>
-      <p class="small">
-        This is an estimate based on your questionnaire responses and some simple health questions.
-        It does not replace a consultation or imaging.
-      </p>
-      <p>
-        WOMAC total: <strong>${womacPain + womacFunc + womacStiff}/96</strong> (Pain ${womacPain}/20, Stiffness ${womacStiff}/8, Function ${womacFunc}/68).<br>
-        PCS-6 total: <strong>${pcsTotal}</strong>.
-      </p>
-    </div>
-
-    <div class="grid grid-3">
-      <div class="card result-card cs">
-        <h3>Steroid injection</h3>
-        <p><strong>Short-term (0–6 weeks):</strong> ${CS_short.toFixed(1)}
-          <span class="band-pill ${CS_short_band.cls}">${CS_short_band.text}</span>
-        </p>
-        <p><strong>6 weeks–3 months:</strong> ${CS_mid.toFixed(1)}
-          <span class="band-pill ${CS_mid_band.cls}">${CS_mid_band.text}</span>
-        </p>
-        <p class="small">
-          Steroid injections are often best for short-term relief when the knee is inflamed or swollen.
-        </p>
-      </div>
-
-      <div class="card result-card ha">
-        <h3>Hyaluronic acid injection</h3>
-        <p><strong>Short-term (0–6 weeks):</strong> ${HA_short.toFixed(1)}
-          <span class="band-pill ${HA_short_band.cls}">${HA_short_band.text}</span>
-        </p>
-        <p><strong>6 weeks–3 months:</strong> ${HA_mid.toFixed(1)}
-          <span class="band-pill ${HA_mid_band.cls}">${HA_mid_band.text}</span>
-        </p>
-        <p class="small">
-          These injections aim to improve lubrication and may give more gradual relief, especially in mild–moderate arthritis.
-        </p>
-      </div>
-
-      <div class="card result-card gel">
-        <h3>Hydrogel / long-acting gel</h3>
-        <p><strong>Short-term (0–6 weeks):</strong> ${Gel_short.toFixed(1)}
-          <span class="band-pill ${Gel_short_band.cls}">${Gel_short_band.text}</span>
-        </p>
-        <p><strong>6 weeks–3 months:</strong> ${Gel_mid.toFixed(1)}
-          <span class="band-pill ${Gel_mid_band.cls}">${Gel_mid_band.text}</span>
-        </p>
-        <p><strong>Longer-term (up to several years):</strong> ${Gel_long.toFixed(1)}
-          <span class="band-pill ${Gel_long_band.cls}">${Gel_long_band.text}</span>
-        </p>
-        <p class="small">
-          Gels are often considered for people &lt;70 years with confirmed arthritis who need longer-lasting relief.
-        </p>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Safety notes from your answers</h3>
-      <p class="small">${safetyNotes}</p>
-      <p class="small">
-        Please discuss these results with your clinician – they will consider imaging, examination and your full medical history before making any treatment decisions.
-      </p>
-    </div>
-  `;
-}
-
-  if (typeof setMode === 'function') { setMode('patient'); }
-  applyFirstInjectionBehaviour();
 });

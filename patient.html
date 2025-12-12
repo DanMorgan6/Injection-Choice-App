@@ -219,15 +219,7 @@
     <div class="subtitle">Questionnaire-based guidance to help you and your clinician explore injection options.</div>
   </div>
 
-  <div class="app">
-      <div class="grid grid-2">
-        <button type="button" id="modeClinicianBtn" class="btn-secondary mode-active">Clinician mode</button>
-        <button type="button" id="modePatientBtn" class="btn-secondary">Patient mode</button>
-      </div>
-      <p class="small">Clinician mode uses full clinical inputs. Patient mode uses a questionnaire-based prediction with simpler wording.</p>
-    </div>
-
-    <button id="startBtn" class="primary-btn">
+      <button id="startBtn" class="primary-btn">
       <span class="icon">▶</span>
       <span>Start assessment</span>
     </button>
@@ -319,7 +311,7 @@
           </select>
         </div>
         <div>
-          <label for="malalign">Malalignment &gt;5°</label>
+          <label for="malalign">Has a doctor or medical practitioner ever told you that you have knock knees or bowed legs?</label>
           <select id="malalign">
             <option value="">--</option>
             <option value="Y">Y</option>
@@ -358,48 +350,31 @@
       <div class="section-divider"></div>
       <div class="section-title">Systemic risk &amp; injection history</div>
       <div class="grid grid-2">
+        
         <div>
-          <label for="metabolic">Systemic comorbidity</label>
-          <select id="metabolic">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-          <p class="small">E.g. diabetes, CVD, autoimmune disease, CKD, CLD.</p>
+          <label>Do you have any of the following health conditions?</label>
+          <p class="small">Tick all that apply.</p>
+          <div class="small">
+            <label><input type="checkbox" id="com_diabetes"> Diabetes</label><br>
+            <label><input type="checkbox" id="com_glaucoma"> Glaucoma</label><br>
+            <label><input type="checkbox" id="com_cvd"> Heart or cardiovascular disease</label><br>
+            <label><input type="checkbox" id="com_ckd"> Chronic kidney disease</label><br>
+            <label><input type="checkbox" id="com_cld"> Chronic liver disease</label><br>
+            <label><input type="checkbox" id="com_raid"> Rheumatoid / inflammatory arthritis</label><br>
+            <label><input type="checkbox" id="com_immune"> On medicines that affect your immune system (e.g. steroids, biologics)</label><br>
+            <label><input type="checkbox" id="com_none"> None of the above</label>
+          </div>
         </div>
         <div>
-          <label for="nutr">Nutritional risk</label>
+          <label for="nutr">Nutritional or metabolic risk</label>
           <select id="nutr">
             <option value="">--</option>
             <option value="Y">Y</option>
             <option value="N">N</option>
           </select>
+          <p class="small">For example: low vitamin D, raised cholesterol, pre-diabetes or other nutrition-related concerns.</p>
         </div>
-        <div>
-          <label for="guided">Image-guided injection</label>
-          <select id="guided">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-        </div>
-        <div>
-          <label for="diabetes">Diabetes</label>
-          <select id="diabetes">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-        </div>
-        <div>
-          <label for="glaucoma">Glaucoma</label>
-          <select id="glaucoma">
-            <option value="">--</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-          </select>
-        </div>
-        <div>
+<div>
           <!-- Clinician-only CS load fields hidden in patient view
           <label for="cs12">CS injections last 12 months</label>
           <input type="number" id="cs12" min="0" />

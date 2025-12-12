@@ -100,7 +100,7 @@ function calculatePredictions() {
   const metabolic = document.getElementById('metabolic').value;
   const prior = document.getElementById('prior').value;
   const nutr = document.getElementById('nutr').value;
-  const guided = document.getElementById('guided').value;
+  const guided = 'Y'; // always assume image-guided injection in this tool
   let cs12 = parseInt(document.getElementById('cs12').value) || 0;
   let cslife = parseInt(document.getElementById('cslife').value) || 0;
 
@@ -127,6 +127,11 @@ function calculatePredictions() {
 
   const pcsInfo = calcPCS();
   const pcsTotal = pcsInfo.total;
+
+  // WOMAC is not collected in the clinician tool; keep norms neutral.
+  const womacPainNorm = 0;
+  const womacFuncNorm = 0;
+  const womacStiffNorm = 0;
 
   const amber = document.getElementById('amberWarning');
   amber.style.display = 'none';
@@ -185,6 +190,7 @@ function calculatePredictions() {
   let PriorScore = (prior === 'Y') ? 2 : 0;
   let NutrScore = yn(nutr) ? -1 : 0;
   let IGScore = yn(guided) ? 1 : 0;
+  const metabolicFlag = yn(metabolic);
 
   let CSloadScore;
   if (cslife < 3) CSloadScore = 0;
@@ -213,27 +219,33 @@ function calculatePredictions() {
   let CS_short = S + 4 * synFlag + 1 * effFlag + 1 * priorPosFlag - 1 * CSloadCat;
   let CS_mid   = S + 2 * synFlag - 1 * CSloadCat - 1;
 
-  let HA_short = S + 1 * effFlag;
-  let HA_mid   = S + 3 * KLcat + 1 * effFlag - (CSloadCat >= 2 ? 1 : 0);
+  let HA_short = S - 0.5 * effFlag - 0.2 * synFlag;
+  let HA_mid   = S + 2.5 * KLcat - 1.0 * effFlag - 0.3 * synFlag - (CSloadCat >= 2 ? 1 : 0);
+
+  // Additional HA penalties for very high BMI (reduced HA response)
+  if (bmi > 35) { HA_short -= 0.5; HA_mid -= 1.0; }
 
   let Gel_short = S;
   let Gel_mid   = S
-                + 2 * KLcat
-                + 1 * effFlag
-                + 2 * synFlag
-                + (age < 60 ? 2 : (age < 70 ? 1 : 0));
+                + 1.6 * KLcat
+                - 0.4 * effFlag
+                + 1.5 * synFlag
+                + (age < 60 ? 1.5 : (age < 70 ? 0.8 : 0));
+
+  if (metabolicFlag) { HA_mid -= 0.5; HA_short -= 0.2; Gel_mid -= 0.4; }
 
   let Gel_long = 
       3 * (age < 60 ? 1 : 0) +
       2 * ((age >= 60 && age < 70) ? 1 : 0) +
-      2 * synFlag +
-      1 * effFlag +
+      1.5 * synFlag +
+      0.5 * effFlag +
       2 * (kl <= 2 ? 1 : 0) +
-      1 * (kl === 3 ? 1 : 0) -
-      2 * (kl === 4 ? 1 : 0) -
+      0.8 * (kl === 3 ? 1 : 0) -
+      2.5 * (kl === 4 ? 1 : 0) -
       2 * (malFlag ? 1 : 0) +
-      2.0 * womacFuncNorm +
-      1.0 * womacStiffNorm;
+      0.0 * womacFuncNorm +
+      0.0 * womacStiffNorm
+      - 0.6 * metabolicFlag;
 
   const CS_short_band = bandShortMid(CS_short);
   const CS_mid_band   = bandShortMid(CS_mid);
@@ -253,7 +265,7 @@ function calculatePredictions() {
 
   const csCautionNote = riskFlag
     ? "<p class='small'><strong>Caution:</strong> Diabetes/glaucoma present – if using corticosteroid, counsel carefully and monitor.</p>"
-    : "<p class='small'>Best for synovitic flares and rapid symptom relief. Penalised by high CS load and high WOMAC stiffness mid-term.</p>";
+    : "<p class='small'>Best for synovitic flares and rapid symptom relief. Penalised by high CS load and higher baseline stiffness mid-term.</p>";
 
   const res = document.getElementById('results');
   res.innerHTML = `
@@ -345,47 +357,18 @@ function resetForm() {
   applyFirstInjectionBehaviour();
 }
 
+
 document.addEventListener('DOMContentLoaded', function() {
-
-  const modeClinicianBtn = document.getElementById('modeClinicianBtn');
-  const modePatientBtn = document.getElementById('modePatientBtn');
-
-  function setMode(mode) {
-    currentMode = mode;
-    if (modeClinicianBtn && modePatientBtn) {
-      if (mode === 'clinician') {
-        modeClinicianBtn.classList.add('mode-active');
-        modePatientBtn.classList.remove('mode-active');
-      } else {
-        modePatientBtn.classList.add('mode-active');
-        modeClinicianBtn.classList.remove('mode-active');
-      }
-    }
-    // Toggle clinician vs patient specific blocks
+  // Ensure clinician-specific blocks are visible and patient placeholders are hidden.
+  function setClinicianView() {
     const klClin = document.getElementById('klClinicianBlock');
     const klPat = document.getElementById('klPatientBlock');
     const ptCsBlock = document.getElementById('pt_cs_block');
-    if (klClin && klPat) {
-      if (mode === 'clinician') {
-        klClin.classList.remove('mode-hidden');
-        klPat.classList.add('mode-hidden');
-      } else {
-        klClin.classList.add('mode-hidden');
-        klPat.classList.remove('mode-hidden');
-      }
-    }
-    if (ptCsBlock) {
-      if (mode === 'clinician') ptCsBlock.classList.add('mode-hidden');
-      else ptCsBlock.classList.remove('mode-hidden');
-    }
+    if (klClin) klClin.classList.remove('mode-hidden');
+    if (klPat) klPat.classList.add('mode-hidden');
+    if (ptCsBlock) ptCsBlock.classList.add('mode-hidden');
   }
-
-  if (modeClinicianBtn) {
-    modeClinicianBtn.addEventListener('click', () => setMode('clinician'));
-  }
-  if (modePatientBtn) {
-    modePatientBtn.addEventListener('click', () => setMode('patient'));
-  }
+  setClinicianView();
 
   const startBtn = document.getElementById('startBtn');
   const formCard = document.getElementById('formCard');
@@ -401,13 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  if (calcBtn) calcBtn.addEventListener('click', () => {
-    if (currentMode === 'patient') {
-      calculatePatientPredictions();
-    } else {
-      calculatePredictions();
-    }
-  });
+  if (calcBtn) calcBtn.addEventListener('click', calculatePredictions);
   if (printBtn) printBtn.addEventListener('click', () => window.print());
   if (resetFab) resetFab.addEventListener('click', resetForm);
   if (darkToggle) darkToggle.addEventListener('click', () => document.body.classList.toggle('dark'));
@@ -442,221 +419,4 @@ document.addEventListener('DOMContentLoaded', function() {
       womacToggleBtn.textContent = show ? 'Hide' : 'Show';
     });
   }
-
-  const pcsToggleBtn = document.getElementById('pcsToggleBtn');
-  const pcsGrid = document.getElementById('pcsGrid');
-  if (pcsToggleBtn && pcsGrid) {
-    pcsToggleBtn.addEventListener('click', () => {
-      const show = !pcsGrid.classList.contains('show');
-      pcsGrid.classList.toggle('show', show);
-      pcsToggleBtn.textContent = show ? 'Hide' : 'Show';
-    });
-  }
-
-  const priorSelect = document.getElementById('prior');
-  if (priorSelect) {
-    priorSelect.addEventListener('change', applyFirstInjectionBehaviour);
-  }
-
-
-function calculatePatientPredictions() {
-  // Use WOMAC & PCS from existing inputs
-  const womac = calcWOMAC();
-  const womacPain = womac.pain;
-  const womacFunc = womac.func;
-  const womacStiff = womac.stiff;
-
-  const pcsInfo = calcPCS();
-  const pcsTotal = pcsInfo.total;
-
-  const PainNorm  = Math.min(Math.max(womacPain / 20.0, 0), 1);
-  const FuncNorm  = Math.min(Math.max(womacFunc / 68.0, 0), 1);
-  const StiffNorm = Math.min(Math.max(womacStiff / 8.0, 0), 1);
-  const PCSNorm   = Math.min(Math.max(pcsTotal / 24.0, 0), 1);
-
-  const SymptomScore = 3*PainNorm + 2*FuncNorm + 1*StiffNorm;
-  const PsychPenalty = 1.5 * PCSNorm;
-
-  const age = parseFloat(document.getElementById('age').value) || 0;
-  let AgeScore = 0;
-  if (age > 0 && age < 55) AgeScore = 1;
-  else if (age >= 70) AgeScore = -1;
-
-  // X-ray based stage
-  const xray = (document.getElementById('pt_xray') || {}).value || "";
-  const sev = (document.getElementById('pt_severity') || {}).value || "";
-  let StageScore = 0;
-  if (xray === 'Y') {
-    if (sev === 'mild') StageScore = 2.0;
-    else if (sev === 'mildmod') StageScore = 1.5;
-    else if (sev === 'mod') StageScore = 0.0;
-    else if (sev === 'modsev') StageScore = -0.5;
-    else if (sev === 'sev') StageScore = -1.0;
-  }
-
-  // Inflammatory features – approximate from synovitis/effusion selects
-  const syn = (document.getElementById('synovitis') || {}).value || "";
-  const eff = (document.getElementById('effusion') || {}).value || "";
-  const SwellingY = (eff === 'Y') ? 1 : 0;
-  const WarmY = (syn === 'Y') ? 1 : 0;
-  const InflammScore = 1.5*SwellingY + 1.5*WarmY;
-
-  // Prior steroid response & count from patient fields
-  const csResp = (document.getElementById('pt_cs_response') || {}).value || "";
-  const csCount = (document.getElementById('pt_cs_count') || {}).value || "";
-
-  let PriorScore = 0;
-  if (csResp === 'good') PriorScore = 1.5;
-  else if (csResp === 'poor') PriorScore = -1.0;
-
-  let CSloadPenalty = 0;
-  if (csCount === 'few') CSloadPenalty = -0.5;
-  else if (csCount === 'many') CSloadPenalty = -1.5;
-
-  const BaselineIndex = SymptomScore - PsychPenalty + AgeScore + StageScore;
-
-  const CS_short = BaselineIndex
-                 + 2.0*InflammScore
-                 + 0.75*PriorScore
-                 - CSloadPenalty;
-
-  const CS_mid = BaselineIndex
-               + 1.0*InflammScore
-               + 0.5*PriorScore
-               - 1.5*CSloadPenalty
-               - 0.5*StiffNorm;
-
-  const HA_short = BaselineIndex
-                 + 0.5*InflammScore
-                 - 0.5*CSloadPenalty;
-
-  const HA_mid = BaselineIndex
-               + 1.5*StageScore
-               + 1.2*FuncNorm
-               + 0.3*PainNorm
-               - 0.3*StiffNorm
-               - 0.5*CSloadPenalty;
-
-  const Gel_short = BaselineIndex
-                  + 1.0*InflammScore;
-
-  const Gel_mid = BaselineIndex
-                + 1.2*StageScore
-                + 1.5*FuncNorm
-                + 0.7*StiffNorm;
-
-  let AgeLongBonus = 0;
-  if (age > 0 && age < 60) AgeLongBonus = 2;
-  else if (age >= 60 && age < 70) AgeLongBonus = 1;
-
-  const Gel_long = 2.0*StageScore
-                 + 2.0*FuncNorm
-                 + 1.0*StiffNorm
-                 + AgeLongBonus;
-
-  function bandPatient(idx) {
-    if (idx >= 6) return {text: "High (≥70%)", cls: "band-high"};
-    if (idx >= 3) return {text: "Moderate (40–70%)", cls: "band-mod"};
-    if (idx >= 1) return {text: "Low–moderate (20–40%)", cls: "band-lowmod"};
-    return {text: "Unlikely (<20%)", cls: "band-unlikely"};
-  }
-
-  const CS_short_band = bandPatient(CS_short);
-  const CS_mid_band   = bandPatient(CS_mid);
-  const HA_short_band = bandPatient(HA_short);
-  const HA_mid_band   = bandPatient(HA_mid);
-  const Gel_short_band= bandPatient(Gel_short);
-  const Gel_mid_band  = bandPatient(Gel_mid);
-  const Gel_long_band = bandPatient(Gel_long);
-
-  // Simple patient-facing warnings
-  const diabetes = (document.getElementById('diabetes') || {}).value || "";
-  const glaucoma = (document.getElementById('glaucoma') || {}).value || "";
-
-  let safetyNotes = "";
-  if (diabetes === 'Y') {
-    safetyNotes += "• You reported diabetes – steroid injections can temporarily raise blood sugar for 1–2 weeks. This should be discussed with your clinician.<br>";
-  }
-  if (glaucoma === 'Y') {
-    safetyNotes += "• You reported glaucoma – steroids can increase eye pressure in some people. Alternatives may be preferred.<br>";
-  }
-  if (csCount === 'many') {
-    safetyNotes += "• You have had several steroid injections already – further injections may have less benefit. Other options may be worth exploring.<br>";
-  }
-  if (!safetyNotes) {
-    safetyNotes = "No specific safety flags from your answers – your clinician will still need to confirm this against your full medical history.";
-  }
-
-  const res = document.getElementById('results');
-  if (!res) return;
-
-  res.innerHTML = `
-    <div class="card">
-      <h2>Patient Mode – Summary</h2>
-      <p class="small">
-        This is an estimate based on your questionnaire responses and some simple health questions.
-        It does not replace a consultation or imaging.
-      </p>
-      <p>
-        WOMAC total: <strong>${womacPain + womacFunc + womacStiff}/96</strong> (Pain ${womacPain}/20, Stiffness ${womacStiff}/8, Function ${womacFunc}/68).<br>
-        PCS-6 total: <strong>${pcsTotal}</strong>.
-      </p>
-    </div>
-
-    <div class="grid grid-3">
-      <div class="card result-card cs">
-        <h3>Steroid injection</h3>
-        <p><strong>Short-term (0–6 weeks):</strong> ${CS_short.toFixed(1)}
-          <span class="band-pill ${CS_short_band.cls}">${CS_short_band.text}</span>
-        </p>
-        <p><strong>6 weeks–3 months:</strong> ${CS_mid.toFixed(1)}
-          <span class="band-pill ${CS_mid_band.cls}">${CS_mid_band.text}</span>
-        </p>
-        <p class="small">
-          Steroid injections are often best for short-term relief when the knee is inflamed or swollen.
-        </p>
-      </div>
-
-      <div class="card result-card ha">
-        <h3>Hyaluronic acid injection</h3>
-        <p><strong>Short-term (0–6 weeks):</strong> ${HA_short.toFixed(1)}
-          <span class="band-pill ${HA_short_band.cls}">${HA_short_band.text}</span>
-        </p>
-        <p><strong>6 weeks–3 months:</strong> ${HA_mid.toFixed(1)}
-          <span class="band-pill ${HA_mid_band.cls}">${HA_mid_band.text}</span>
-        </p>
-        <p class="small">
-          These injections aim to improve lubrication and may give more gradual relief, especially in mild–moderate arthritis.
-        </p>
-      </div>
-
-      <div class="card result-card gel">
-        <h3>Hydrogel / long-acting gel</h3>
-        <p><strong>Short-term (0–6 weeks):</strong> ${Gel_short.toFixed(1)}
-          <span class="band-pill ${Gel_short_band.cls}">${Gel_short_band.text}</span>
-        </p>
-        <p><strong>6 weeks–3 months:</strong> ${Gel_mid.toFixed(1)}
-          <span class="band-pill ${Gel_mid_band.cls}">${Gel_mid_band.text}</span>
-        </p>
-        <p><strong>Longer-term (up to several years):</strong> ${Gel_long.toFixed(1)}
-          <span class="band-pill ${Gel_long_band.cls}">${Gel_long_band.text}</span>
-        </p>
-        <p class="small">
-          Gels are often considered for people &lt;70 years with confirmed arthritis who need longer-lasting relief.
-        </p>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Safety notes from your answers</h3>
-      <p class="small">${safetyNotes}</p>
-      <p class="small">
-        Please discuss these results with your clinician – they will consider imaging, examination and your full medical history before making any treatment decisions.
-      </p>
-    </div>
-  `;
-}
-
-  if (typeof setMode === 'function') { setMode('clinician'); }
-  applyFirstInjectionBehaviour();
 });
