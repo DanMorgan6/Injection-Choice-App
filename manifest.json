@@ -1,6 +1,6 @@
 {
-  "name": "Knee OA Injection Outcome Predictor",
-  "short_name": "KneeOA",
+  "name": "Knee OA Injection Decision Support Tool",
+  "short_name": "Knee OA Decision Support",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f8fbff",

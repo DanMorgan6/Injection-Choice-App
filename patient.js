@@ -250,15 +250,110 @@ function calculatePredictions() {
   const results = document.getElementById('results');
   if (!results) return;
 
+  // --- Explainability (patient + clinician detail) ---
+  const hasInflamm = (yn(syn) === 1) || (yn(eff) === 1);
+  const hasSwelling = (yn(syn) === 1); // patient wording: swollen/puffy
+  const hasWarmth = (yn(eff) === 1);   // patient wording: warm/hot
+  const aspYes = (document.getElementById('pt_aspirated')?.value || '') === 'Y';
+
+  // Structural stage from patient severity (only if imaging confirmed)
+  let stageLabel = 'unknown';
+  if (xray === 'Y') stageLabel = severity || 'unknown';
+
+  const bmiHigh = (bmi >= 35);
+  const bmiMod = (bmi >= 30 && bmi < 35);
+  const comorbBurden = Math.min(2.5, (comCVD?0.3:0) + (comCKD?0.6:0) + (comCLD?0.5:0) + (comRA?1.2:0) + (comImm?0.8:0));
+  const comorbHigh = comorbBurden >= 1.2;
+  const pcsHigh = pcsTotal >= 15;
+  const csRepeat = (csCount === 'many');
+  const csSome = (csCount === 'few');
+
+  function stageTextPatient() {
+    if (stageLabel === 'mild') return 'mild arthritis on imaging';
+    if (stageLabel === 'mildmod') return 'mild-to-moderate arthritis on imaging';
+    if (stageLabel === 'mod') return 'moderate arthritis on imaging';
+    if (stageLabel === 'modsev') return 'moderate-to-severe arthritis on imaging';
+    if (stageLabel === 'sev') return 'severe arthritis on imaging';
+    if (xray === 'N') return 'no confirmed imaging description';
+    return 'an unclear arthritis stage';
+  }
+
+  function whyCS() {
+    const positives = [];
+    const limits = [];
+    if (hasInflamm) positives.push('your answers suggest an inflammatory flare (warmth and/or swelling)');
+    if (PriorScore > 0) positives.push('you previously had a good response to an injection');
+    if (!hasInflamm) limits.push('there are fewer signs of active inflammation');
+    if (csRepeat) limits.push('repeat steroid injections can have diminishing returns over time');
+    if (pcsHigh) limits.push('high pain sensitivity/catastrophising can reduce response to passive treatments');
+    if (xray === 'Y' && (stageLabel === 'modsev' || stageLabel === 'sev')) limits.push('more advanced arthritis can reduce durability');
+
+    const p1 = positives[0] ? positives[0] : 'steroids often help most in the first few weeks';
+    const p2 = positives[1] ? `Also, ${positives[1]}.` : '';
+    const l1 = limits[0] ? `However, ${limits[0]}.` : '';
+    const l2 = limits[1] ? `Also, ${limits[1]}.` : '';
+    const asp = (hasSwelling && aspYes) ? ' Draining fluid first may slightly improve comfort and early response.' : '';
+    const patient = `This option is most likely to help in the short term. Because ${p1}.${p2} ${l1} ${l2}${asp}`.replace(/\s+/g,' ').trim();
+
+    const clin = `CS: short-term response is favoured by an inflammatory phenotype (warmth/swelling). Durability is limited by repeat CS exposure and higher structural severity; psychosocial amplification (PCS) can blunt perceived benefit.`.trim();
+    return { patient, clin };
+  }
+
+  function whyHA() {
+    const positives = [];
+    const limits = [];
+    if (xray === 'Y' && (stageLabel === 'mild' || stageLabel === 'mildmod' || stageLabel === 'mod')) positives.push('mild–moderate arthritis tends to respond best to hyaluronic acid');
+    if (!hasInflamm) positives.push('fewer inflammatory features can improve mid-term durability');
+    if (hasSwelling || hasWarmth) limits.push('swelling/warmth can reduce how long hyaluronic acid lasts');
+    if (hasSwelling && !aspYes) limits.push('a swollen knee can dilute the injection (draining fluid first may help)');
+    if (bmiHigh) limits.push('a higher BMI can reduce response and durability');
+    if (comorbHigh) limits.push('overall health factors may reduce durability');
+
+    const base = `This option is usually most helpful in the mid term (6 weeks to 3 months).`;
+    const p = positives.length ? `Your answers suggest ${positives[0]}.` : `Response varies depending on arthritis stage and inflammation.`;
+    const l = limits.length ? `However, ${limits.slice(0,2).join(' and ')}.` : '';
+    const patient = `${base} ${p} ${l}`.replace(/\s+/g,' ').trim();
+
+    const clin = `HA (IBSA): mid-term benefit is typically strongest in KL2–3 equivalents. Active synovitis/effusion reduces durability (partly mitigated by aspiration). Higher BMI and comorbidity burden reduce effect size.`.trim();
+    return { patient, clin };
+  }
+
+  function whyGel() {
+    const positives = [];
+    const limits = [];
+    if (xray === 'Y' && (stageLabel === 'mild' || stageLabel === 'mildmod' || stageLabel === 'mod')) positives.push('earlier-stage arthritis tends to have better durability with longer-acting injectables');
+    if (hasSwelling && aspYes) positives.push('draining fluid before injection may improve durability when the knee is swollen');
+    if (csRepeat) positives.push('a longer-acting option can be useful when repeat steroids are less desirable');
+
+    if (xray === 'Y' && stageLabel === 'sev') limits.push('severe arthritis can reduce long-term durability');
+    if (hasInflamm) limits.push('ongoing inflammation can reduce durability');
+    if (comorbHigh) limits.push('systemic health factors may reduce durability');
+    if (bmiHigh) limits.push('higher BMI may reduce durability');
+
+    const base = `This option is designed to support longer-lasting benefit.`;
+    const p = positives.length ? `Your answers suggest ${positives[0]}.` : `Durability depends on arthritis stage and joint biology.`;
+    const l = limits.length ? `However, ${limits.slice(0,2).join(' and ')}.` : '';
+    const patient = `${base} ${p} ${l}`.replace(/\s+/g,' ').trim();
+
+    const clin = `Hydrogel: conservative modelling prioritises durability; response is moderated by structural severity, inflammatory activity, BMI and systemic burden. Aspiration can partially mitigate effusion-related washout.`.trim();
+    return { patient, clin };
+  }
+
+  const rCS = whyCS();
+  const rHA = whyHA();
+  const rGel = whyGel();
+
   const cards = [
-    { title: 'Corticosteroid', short: CS_short, mid: CS_mid, note: 'Short-term often best when the knee is warm/swollen.' },
-    { title: 'Hyaluronic Acid (e.g., Sinovial 64 / Sinogel)', short: HA_short, mid: HA_mid, note: 'Typically best mid-term in mild–moderate OA.' },
-    { title: 'Hydrogel', short: null, mid: Gel_mid, long: Gel_long, note: 'Designed for longer durability; results vary by stage and inflammation.' }
+    { key:'cs', title: 'Corticosteroid', short: CS_short, mid: CS_mid, note: 'Short-term often best when the knee is warm/swollen.', whyPatient: rCS.patient, whyClinician: rCS.clin },
+    { key:'ha', title: 'Hyaluronic Acid (e.g., Sinovial 64 / Sinogel)', short: HA_short, mid: HA_mid, note: 'Typically best mid-term in mild–moderate OA.', whyPatient: rHA.patient, whyClinician: rHA.clin },
+    { key:'gel', title: 'Hydrogel', short: null, mid: Gel_mid, long: Gel_long, note: 'Designed for longer durability; results vary by stage and inflammation.', whyPatient: rGel.patient, whyClinician: rGel.clin }
   ];
 
   function band(val){ return bandShortMid(val); }
   function pct(val){ return Math.round(clamp((val+2)/10,0,1)*100); }
 
+  const payload = { appName: 'Knee OA Injection Decision Support Tool', cards, generatedAt: new Date().toISOString() };
+  localStorage.setItem('resultsPayload', JSON.stringify(payload));
   results.innerHTML = cards.map(c => {
     const shortHtml = (c.short===null) ? '' : `<div class="pill">Short-term: <b>${band(c.short)}</b> (${pct(c.short)}%)</div>`;
     const midHtml = `<div class="pill">Mid-term: <b>${band(c.mid)}</b> (${pct(c.mid)}%)</div>`;
@@ -273,7 +368,7 @@ function calculatePredictions() {
   }).join('');
 
   const resultsCard = document.getElementById('resultsCard');
-  if (resultsCard) window.scrollTo({ top: resultsCard.offsetTop - 10, behavior: 'smooth' });
+  window.location.href = 'results.html';
 }
 
 document.addEventListener('DOMContentLoaded', function() {

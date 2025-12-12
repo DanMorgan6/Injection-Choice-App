@@ -341,7 +341,58 @@ function resetForm() {
   const results = document.getElementById('results');
   if (amber) { amber.style.display = 'none'; amber.innerHTML = ''; }
   if (csWarning) { csWarning.style.display = 'none'; csWarning.innerHTML = ''; }
-  if (results) { results.innerHTML = ''; }
+  if (results) { 
+  // --- Explainability payload for separate results page ---
+  const hasInflamm = (synFlag > 0) || (effFlag > 0);
+  const aspY = (typeof aspirated !== 'undefined') && (aspirated === 'Y');
+
+  function whyCS_clin() {
+    const pos = [];
+    const neg = [];
+    if (hasInflamm) pos.push('inflammatory phenotype (synovitis/effusion)');
+    if (priorPosFlag > 0) pos.push('prior positive response');
+    if (!hasInflamm) neg.push('few inflammatory features');
+    if (CSloadScore <= -2) neg.push('high corticosteroid exposure (diminishing returns)');
+    if (kl >= 4) neg.push('advanced OA (KL4) reducing durability');
+    const patient = `Short-term benefit is most likely when inflammation is present. Your assessment suggests ${hasInflamm ? 'active inflammation' : 'limited inflammatory features'}. ${CSloadScore <= -2 ? 'Repeat steroid exposure may reduce mid-term durability.' : ''}`.trim();
+    const clinician = `CS: strongest short-term effect in synovitis/effusion. Mid-term durability reduced by repeat CS exposure and higher KL grade.`.trim();
+    return { patient, clinician };
+  }
+
+  function whyHA_clin() {
+    const pos = [];
+    const neg = [];
+    if (kl <= 3) pos.push('mild–moderate structural OA');
+    if (!hasInflamm) pos.push('lower inflammatory activity');
+    if (hasInflamm) neg.push('synovitis/effusion reducing durability');
+    if (aspY) pos.push('effusion aspirated (reduces washout)');
+    if (bmi >= 35) neg.push('high BMI reducing response');
+    const patient = `This option is usually most helpful in the mid term (6 weeks to 3 months). ${kl <= 3 ? 'Mild–moderate arthritis tends to respond best.' : 'More advanced arthritis can reduce effect size.'} ${hasInflamm ? 'Swelling/inflammation may reduce durability.' : ''} ${aspY ? 'Aspirating effusion may improve durability.' : ''}`.replace(/\s+/g,' ').trim();
+    const clinician = `HA: best mid-term benefit in KL2–3. Synovitis/effusion reduces durability; aspiration partially mitigates. Higher BMI and systemic burden reduce effect size.`.trim();
+    return { patient, clinician };
+  }
+
+  function whyGel_clin() {
+    const patient = `Hydrogel options are designed for longer-lasting benefit. Durability is influenced by structural severity, inflammation, BMI and systemic health. ${aspY ? 'Aspiration may improve durability when effusion is present.' : ''}`.replace(/\s+/g,' ').trim();
+    const clinician = `Hydrogel: conservative long-term modelling. Structural severity (KL4), systemic burden and inflammatory activity reduce durability; aspiration may mitigate washout.`.trim();
+    return { patient, clinician };
+  }
+
+  const rCS = whyCS_clin();
+  const rHA = whyHA_clin();
+  const rGel = whyGel_clin();
+
+  const cards = [
+    { key:'cs', title:'Corticosteroid', short: CS_short, mid: CS_mid, note:'Short-term often best when synovitis is present.', whyPatient:rCS.patient, whyClinician:rCS.clinician },
+    { key:'ha', title:'Hyaluronic Acid (e.g., Sinovial 64 / Sinogel)', short: HA_short, mid: HA_mid, note:'Typically best mid-term in mild–moderate OA.', whyPatient:rHA.patient, whyClinician:rHA.clinician },
+    { key:'gel', title:'Hydrogel', short: null, mid: Gel_mid, long: Gel_long, note:'Designed for longer durability; outcomes vary with stage and inflammation.', whyPatient:rGel.patient, whyClinician:rGel.clinician }
+  ];
+
+  localStorage.setItem('resultsPayload', JSON.stringify({ appName:'Knee OA Injection Decision Support Tool', cards, generatedAt: new Date().toISOString() }));
+  window.location.href = 'results.html';
+  return;
+
+results.innerHTML = ''; }
 
   applyFirstInjectionBehaviour();
 }

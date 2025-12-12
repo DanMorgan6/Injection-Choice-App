@@ -1,0 +1,49 @@
+
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Results</title>
+<link rel="stylesheet" href="theme.css"/>
+
+
+<style>
+  .result-card { margin-top:14px; padding:16px; border:1px solid rgba(0,0,0,0.06); }
+  body.dark .result-card { border-color: rgba(255,255,255,0.12); }
+  .pillrow { display:flex; flex-wrap:wrap; gap:10px; margin:10px 0 8px; }
+  .why-block { margin-top:10px; padding:12px; border-radius:14px; background: rgba(30,111,217,0.06); }
+  body.dark .why-block { background: rgba(30,111,217,0.12); }
+  .why-title { font-weight:800; margin-bottom:6px; }
+  .why-text { margin:0 0 10px 0; line-height:1.4; }
+  .btn-small { padding:9px 14px; font-size:0.95rem; }
+  .disclaimer { margin-top:14px; font-size:0.9rem; opacity:0.85; }
+</style>
+
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <img src="logo.png" class="brand-logo"/>
+      <div>
+        <div class="brand-title">Decision support summary</div>
+        <div class="brand-sub">Injection outcome predictions</div>
+      </div>
+    </div>
+    <button onclick="window.print()" class="btn-secondary">Share / Print</button>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h2>Predicted outcomes</h2>
+      <p class="small">Colour-coded estimates based on your answers.</p>
+      <div id="results"></div><div class="disclaimer">This tool supports shared decision-making and does not replace clinical judgement or provide a diagnosis.</div>
+      <div style="margin-top:16px;">
+        <a href="patient.html" class="btn-secondary">Back to assessment</a>
+      </div>
+    </div>
+  </div>
+
+<script src="results.js"></script>
+</body>
+</html>
