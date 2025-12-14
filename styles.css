@@ -59,7 +59,7 @@ body.dark .small{color:rgba(229,231,235,0.75)}
   .grid-2{grid-template-columns:1fr 1fr}
   .grid-3{grid-template-columns:1fr 1fr 1fr}
 }
-label{display:block; font-weight:750; margin:10px 0 6px}
+label{display:block; font-weight:750; margin:8px 0 6px}
 input,select{
   width:100%; padding:12px 12px; border-radius:14px;
   border:1px solid var(--border); background:transparent; color:inherit;
@@ -107,6 +107,10 @@ body.dark .result-card{background:rgba(11,18,32,0.35)}
 .result-title{font-weight:950; font-size:1.05rem}
 .details{margin-top:10px}
 details summary{cursor:pointer; font-weight:850}
-.checkbox-grid{display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px}
-@media(min-width:780px){.checkbox-grid{grid-template-columns:1fr 1fr}}
-.check{display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--border); border-radius:14px}
+.checkbox-grid{display:grid; grid-template-columns:1fr; gap:10px; margin-top:10px}
+@media(min-width:780px){.checkbox-grid{grid-template-columns:1fr 1fr; gap:12px}}
+@media(min-width:780px){.checkbox-grid{display:grid; grid-template-columns:1fr; gap:10px; margin-top:10px}
+@media(min-width:780px){.checkbox-grid{grid-template-columns:1fr 1fr; gap:12px}}}
+.check{display:flex; gap:10px; align-items:center; padding:12px 12px; border:1px solid var(--border); border-radius:14px; background:rgba(255,255,255,0.40)}
+body.dark .check{background:rgba(11,18,32,0.25)}
+.check input{margin-top:0; width:18px; height:18px}
