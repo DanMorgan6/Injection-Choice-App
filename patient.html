@@ -1,256 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Knee OA Knee Injection Options – Shared Decision Aid (Patient View)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#2563eb">
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="theme.css">
-  <style>
-    :root { color-scheme: light dark; }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f8fbff;
-      background-image: linear-gradient(#e0efff 1px, transparent 1px),
-                        linear-gradient(90deg, #e0efff 1px, transparent 1px);
-      background-size: 40px 40px;
-      color: #111827;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-    body.dark {
-      background: #020617;
-      background-image: linear-gradient(#1e293b 1px, transparent 1px),
-                        linear-gradient(90deg, #1e293b 1px, transparent 1px);
-      background-size: 40px 40px;
-      color: #e5e7eb;
-    }
-    .header { text-align: center; padding: 1.2rem 1rem 0.5rem; }
-    .header img {
-      width: 140px; height: 140px; border-radius: 50%; object-fit: contain;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.09); background: #ffffff;
-    }
-    body.dark .header img {
-      background: #020617; box-shadow: 0 4px 12px rgba(15,23,42,0.7);
-    }
-    .brand-title {
-      font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
-      margin-top: 0.5rem; color: #6b7280;
-    }
-    body.dark .brand-title { color: #9ca3af; }
-    .title {
-      font-size: 1.4rem; margin-top: 0.15rem; font-weight: 700; color: #111827;
-    }
-    body.dark .title { color: #e5e7eb; }
-    .subtitle { font-size: 0.85rem; color: #4b5563; margin-top: 0.15rem; }
-    body.dark .subtitle { color: #9ca3af; }
-    
-    .mode-hidden { display:none; }
-    .mode-active { border-color:#2563eb; color:#2563eb; font-weight:600; }
-.app { max-width: 900px; margin: 0 auto; padding: 0 1rem 3.5rem; }
-    .card {
-      background: rgba(255,255,255,0.96); border-radius: 16px; padding: 1rem;
-      margin-top: 0.75rem; box-shadow: 0 10px 30px rgba(15,23,42,0.08);
-      backdrop-filter: blur(8px);
-    }
-    body.dark .card {
-      background: rgba(15,23,42,0.96); box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-      border: 1px solid #1f2937;
-    }
-    .grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
-    @media (min-width: 700px) {
-      .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
-    }
-    label {
-      font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 0.2rem;
-      color: #374151;
-    }
-    body.dark label { color: #e5e7eb; }
-    input, select {
-      width: 100%; box-sizing: border-box; padding: 0.45rem 0.5rem;
-      border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.9rem;
-      background: #ffffff; color: #111827;
-    }
-    body.dark input, body.dark select {
-      background: #020617; border-color: #4b5563; color: #e5e7eb;
-    }
-    input:focus, select:focus {
-      outline: none; border-color: #2563eb;
-      box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
-    }
-    body.dark input:focus, body.dark select:focus {
-      border-color: #60a5fa; box-shadow: 0 0 0 1px rgba(96,165,250,0.4);
-    }
-    .primary-btn {
-      margin-top: 1rem; width: 100%; padding: 0.8rem; border-radius: 999px;
-      border: none; font-size: 1rem; font-weight: 600; background: #2563eb;
-      color: #ffffff; display: inline-flex; align-items: center;
-      justify-content: center; gap: 0.4rem; cursor: pointer;
-    }
-    .primary-btn span.icon { font-size: 1.1rem; }
-    .btn-secondary {
-      margin-top: 0.75rem; width: 100%; padding: 0.7rem; border-radius: 999px;
-      border: 1px solid #d1d5db; background: #ffffff; font-size: 0.9rem;
-      font-weight: 500; color: #374151; cursor: pointer;
-    }
-    body.dark .btn-secondary {
-      background: #020617; border-color: #4b5563; color: #e5e7eb;
-    }
-    .toolbar { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
-    .toolbar button { flex: 1 1 48%; }
-    .toggle-dark {
-      position: fixed; top: 0.75rem; right: 0.75rem; z-index: 40;
-      padding: 0.45rem 0.7rem; font-size: 0.8rem; border-radius: 999px;
-      border: 1px solid #d1d5db; background: #ffffff; color: #111827;
-      cursor: pointer;
-    }
-    body.dark .toggle-dark {
-      background: #020617; color: #e5e7eb; border-color: #4b5563;
-    }
-    .result-card {
-      border-radius: 16px; padding: 0.75rem; margin-top: 0.5rem;
-      font-size: 0.9rem; border: 1px solid #e5e7eb;
-    }
-    body.dark .result-card { border-color: #374151; }
-    .cs { border-left: 4px solid #2563eb; }
-    .ha { border-left: 4px solid #059669; }
-    .gel { border-left: 4px solid #7c3aed; }
-    .preferred { box-shadow: 0 0 0 2px #bbf7d0; }
-    body.dark .preferred { box-shadow: 0 0 0 2px #22c55e; }
-    .band-pill {
-      display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 600; margin-left: 0.3rem;
-    }
-    .band-high    { background:#bbf7d0; color:#166534; }
-    .band-mod     { background:#fef9c3; color:#854d0e; }
-    .band-lowmod  { background:#fee2e2; color:#b91c1c; }
-    .band-unlikely{ background:#e5e7eb; color:#374151; }
-    body.dark .band-high    { background:#166534; color:#bbf7d0; }
-    body.dark .band-mod     { background:#854d0e; color:#fef9c3; }
-    body.dark .band-lowmod  { background:#7f1d1d; color:#fee2e2; }
-    body.dark .band-unlikely{ background:#4b5563; color:#e5e7eb; }
-    .warning {
-      margin-top: 0.5rem; font-size: 0.85rem; padding: 0.5rem;
-      border-radius: 10px; background:#fee2e2; color:#991b1b;
-      border: 1px solid #fecaca;
-    }
-    body.dark .warning {
-      background:#7f1d1d; color:#fee2e2; border-color:#b91c1c;
-    }
-    .amber {
-      margin-top: 0.5rem; font-size: 0.85rem; padding: 0.5rem;
-      border-radius: 10px; background:#fef9c3; color:#854d0e;
-      border: 1px solid #fde047;
-    }
-    body.dark .amber {
-      background:#854d0e; color:#fef9c3; border-color:#eab308;
-    }
-    .small { font-size: 0.8rem; color: #6b7280; }
-    body.dark .small { color: #9ca3af; }
-    footer {
-      margin: 1.5rem 0 0.75rem; text-align: center; font-size: 0.75rem;
-      color: #9ca3af;
-    }
-    body.dark footer { color: #6b7280; }
-    .hidden { display: none; }
-    .section-title {
-      font-size: 0.95rem; font-weight: 600; margin-top: 0.75rem;
-      margin-bottom: 0.35rem;
-    }
-    .section-divider {
-      margin-top: 0.75rem; border-top: 1px dashed #d1d5db;
-    }
-    body.dark .section-divider { border-color: #4b5563; }
-    .reset-fab {
-      position: fixed; right: 1rem; bottom: 1rem; width: 52px; height: 52px;
-      border-radius: 50%; border: none; background: #ef4444; color: #ffffff;
-      font-size: 1.3rem; display: flex; align-items: center;
-      justify-content: center; box-shadow: 0 10px 25px rgba(239,68,68,0.5);
-      cursor: pointer; z-index: 30;
-    }
-    body.dark .reset-fab {
-      background:#b91c1c; box-shadow: 0 10px 25px rgba(127,29,29,0.9);
-    }
-    .pcs-grid {
-      display: grid; grid-template-columns: 1fr 90px;
-      gap: 0.35rem 0.5rem; align-items: center;
-    }
-    .pcs-label { font-size: 0.8rem; }
-    .accordion-header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:0.4rem 0; cursor:pointer;
-    }
-    .accordion-header button {
-      border-radius:999px; border:1px solid #d1d5db; padding:0.25rem 0.6rem;
-      font-size:0.75rem; background:#ffffff; cursor:pointer;
-    }
-    body.dark .accordion-header button {
-      background:#020617; border-color:#4b5563; color:#e5e7eb;
-    }
-    .womac-grid {
-      margin-top:0.3rem;
-      display:none;
-      grid-template-columns: 1fr 120px;
-      gap:0.4rem 0.7rem;
-      align-items:center;
-    }
-    .womac-grid.show { display:grid !important; }
-    .womac-item label { font-size:0.8rem; }
-    @media (max-width: 600px) {
-      .womac-grid { grid-template-columns: 1fr; }
-    }
-    @media print {
-      .toggle-dark, #startBtn, .reset-fab, .toolbar button#printBtn {
-        display: none !important;
-      }
-      body { background: #ffffff; background-image: none; }
-    }
-  </style>
-
-<style>
-  .step { display:none; }
-  .step.active { display:block; }
-  .step-nav { display:flex; gap:12px; justify-content:space-between; margin-top:16px; }
-  .stepper-header { margin-bottom:14px; }
-  .stepper-title { font-weight:800; font-size:1.05rem; margin-bottom:6px; }
-  .stepper-progress { width:100%; height:10px; background:rgba(0,0,0,0.08); border-radius:999px; overflow:hidden; }
-  body.dark .stepper-progress { background: rgba(255,255,255,0.12); }
-  .stepper-bar { height:100%; width:0%; background: var(--blue); transition: width .25s ease; }
-  .checkbox-grid { display:grid; grid-template-columns: 1fr; gap:10px; }
-  @media (min-width: 720px) { .checkbox-grid { grid-template-columns: 1fr 1fr; } }
-  .check { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid rgba(0,0,0,0.08); border-radius:12px; }
-  body.dark .check { border-color: rgba(255,255,255,0.16); }
-  .check input { transform: translateY(2px); }
-</style>
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Knee Injection Options – Shared Decision Aid</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
-
 <body>
   <div class="topbar">
     <div class="brand">
       <img src="logo.png" class="brand-logo" alt="Logo"/>
       <div>
         <div class="brand-title">Knee Injection Options – Shared Decision Aid</div>
-        <div class="brand-sub">Knee Injection Options – Shared Decision Aid</div>
+        <div class="brand-sub">Understanding your injection options for knee arthritis</div>
       </div>
     </div>
-    <button id="darkToggle" class="btn-secondary">Dark mode</button>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <a class="btn btn-secondary" href="index.html">Home</a>
+      <button class="btn btn-ghost" id="darkToggle">Dark mode</button>
+    </div>
   </div>
 
   <div class="container">
     <div class="card">
-      <h1 style="margin:0 0 0.25rem 0;">Your assessment</h1>
-      <p class="small" style="margin-top:0;">Answer a few questions. You can go back at any time.</p>
       <div class="grid grid-3">
-        <button id="startBtn" class="btn-primary">Start</button>
-        <button id="calcBtn" class="btn-primary">See results</button>
-        <button id="printBtn" class="btn-secondary">Share / Print PDF</button>
+        <button class="btn btn-primary" id="startBtn">Start</button>
+        <button class="btn btn-primary" id="calcBtn">Finish &amp; view results</button>
+        <button class="btn btn-secondary" id="printBtn">Print</button>
       </div>
-      <div id="amberWarning" class="warning amber" style="display:none;"></div>
-      <div id="csWarning" class="warning amber" style="display:none;"></div>
+      <div id="amberWarning" class="warning" style="display:none;"></div>
     </div>
 
     <div class="card hidden" id="formCard">
@@ -260,307 +38,185 @@
         <div class="small" id="stepCounter"></div>
       </div>
 
-      <div class="step" data-title="Basics">
-        <div class="section-title">Basics</div>
-        <div class="grid grid-2">
-          <div>
-            <label for="age">Age (years)</label>
-            <input type="number" id="age" min="18" max="100" />
-          </div>
-          <div>
-            <label for="vas">Pain score (0–100)</label>
-            <input type="number" id="vas" min="0" max="100" />
-          </div>
-          <div>
-            <label for="height">Height (cm)</label>
-            <input type="number" id="height" min="100" max="220" />
-          </div>
-          <div>
-            <label for="weight">Weight (kg)</label>
-            <input type="number" id="weight" min="30" max="250" />
-          </div>
-          <div>
-            <label for="bmi">BMI (auto)</label>
-            <input type="number" id="bmi" readonly />
-          </div>
-        </div>
-      </div>
+      
+<div class="step" data-title="Basics">
+  <h3>Basics</h3>
+  <div class="grid grid-2">
+    <div><label for="age">Age (years)</label><input id="age" type="number" min="18" max="100"></div>
+    <div><label for="vas">Pain score (0–100)</label><input id="vas" type="number" min="0" max="100"></div>
+    <div><label for="height">Height (cm)</label><input id="height" type="number" min="100" max="220"></div>
+    <div><label for="weight">Weight (kg)</label><input id="weight" type="number" min="30" max="250"></div>
+    <div><label for="bmi">BMI (auto)</label><input id="bmi" type="number" readonly></div>
+  </div>
+</div>
 
-      <div class="step" data-title="Swelling & heat">
-        <div class="section-title">Swelling &amp; heat</div>
-        <div class="grid grid-2">
-          <div>
-            <label for="synovitis">Does your knee often look swollen or puffy?</label>
-            <select id="synovitis">
-              <option value="">--</option>
-              <option value="Y">Yes</option>
-              <option value="N">No</option>
-            </select>
-          </div>
-          <div>
-            <label for="effusion">Does the knee ever feel warm or hot to touch?</label>
-            <select id="effusion">
-              <option value="">--</option>
-              <option value="Y">Yes</option>
-              <option value="N">No</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="step" data-title="Scans & structure">
-        <div class="section-title">Scans &amp; structure</div>
-        <div class="grid grid-2">
-          <div>
-            <label for="pt_xray">Have you had an X-ray or MRI confirming arthritis in this knee?</label>
-            <select id="pt_xray">
-              <option value="">--</option>
-              <option value="Y">Yes</option>
-              <option value="N">No / Not sure</option>
-            </select>
-          </div>
-          <div>
-            <label for="pt_severity">If yes, how was the arthritis described?</label>
-            <select id="pt_severity">
-              <option value="">--</option>
-              <option value="mild">Mild</option>
-              <option value="mildmod">Mild–Moderate</option>
-              <option value="mod">Moderate</option>
-              <option value="modsev">Moderate–Severe</option>
-              <option value="sev">Severe</option>
-            </select>
-            <p class="small">This dropdown is disabled unless you answered “Yes” above.</p>
-          </div>
-          <div>
-            <label for="malalign">Has a doctor or medical practitioner ever told you that you have knock knees or bowed legs?</label>
-            <select id="malalign">
-              <option value="">--</option>
-              <option value="Y">Yes</option>
-              <option value="N">No</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="step" data-title="Strength">
-        <div class="section-title">Strength</div>
-        <div class="grid grid-2">
-          <div>
-            <label for="quadweak">How difficult is it for you to stand up from a chair without using your hands?</label>
-            <select id="quadweak">
-              <option value="">--</option>
-              <option value="easy">Easy</option>
-              <option value="abit">A bit difficult</option>
-              <option value="hard">Very difficult</option>
-              <option value="cant">I cannot do this without my hands</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="step" data-title="Health">
-        <div class="section-title">Health conditions</div>
-        <p class="small">Tick any that apply.</p>
-        <div class="checkbox-grid">
-          <label class="check"><input type="checkbox" id="com_diabetes"> Diabetes</label>
-          <label class="check"><input type="checkbox" id="com_glaucoma"> Glaucoma / high eye pressure</label>
-          <label class="check"><input type="checkbox" id="com_cvd"> Heart / cardiovascular disease</label>
-          <label class="check"><input type="checkbox" id="com_ckd"> Chronic kidney disease</label>
-          <label class="check"><input type="checkbox" id="com_cld"> Chronic liver disease</label>
-          <label class="check"><input type="checkbox" id="com_raid"> Rheumatoid / inflammatory arthritis</label>
-          <label class="check"><input type="checkbox" id="com_immune"> Immune-suppressing meds (e.g. steroids, biologics)</label>
-          <label class="check"><input type="checkbox" id="com_none"> None of the above</label>
-        </div>
-        <div class="grid grid-2" style="margin-top:0.75rem;">
-          <div>
-            <label for="nutr">Nutritional or metabolic risk</label>
-            <select id="nutr">
-              <option value="">--</option>
-              <option value="Y">Yes / Possibly</option>
-              <option value="N">No</option>
-            </select>
-            <p class="small">Example: low vitamin D, raised cholesterol, pre-diabetes, or other nutrition-related concerns.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="step" data-title="Previous injections">
-        <div class="section-title">Previous injections</div>
-        <div id="pt_cs_block">
-          <label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
-          <select id="pt_cs_response">
-            <option value="">--</option>
-            <option value="none">Never</option>
-            <option value="good">Yes – they helped</option>
-            <option value="poor">Yes – they did not help much</option>
-          </select>
-
-          <label for="pt_cs_count" style="margin-top:0.75rem;">Roughly how many steroid injections have you had into this knee?</label>
-          <select id="pt_cs_count">
-            <option value="">--</option>
-            <option value="none">None</option>
-            <option value="few">1–2</option>
-            <option value="many">3 or more</option>
-          </select>
-        </div>
-
-        <div id="pt_aspirated_block" style="display:none; margin-top:0.75rem;">
-          <label for="pt_aspirated">If your knee is swollen, does your clinician usually drain fluid before injecting?</label>
-          <select id="pt_aspirated">
-            <option value="">--</option>
-            <option value="Y">Yes</option>
-            <option value="N">No</option>
-            <option value="U">Not sure</option>
-          </select>
-        </div>
-
-        <div class="section-divider"></div>
-
-        <div class="section-title">Questionnaires (optional)</div>
-        <p class="small">These help refine predictions. You can skip if you prefer.</p>
-
-        <div class="grid grid-2">
-          <div>
-            <div class="section-title" style="margin-top:0;">WOMAC (24 items)</div>
-            <button type="button" id="womacToggleBtn" class="btn-secondary">Show</button>
-          </div>
-          <div class="small">
-            Pain: <b id="womacPainTotal">0</b>/20 &nbsp;|&nbsp; Stiffness: <b id="womacStiffTotal">0</b>/8 &nbsp;|&nbsp; Function: <b id="womacFuncTotal">0</b>/68 &nbsp;|&nbsp; Total: <b id="womacTotal">0</b>/96
-          </div>
-        </div>
-
-        <div id="womacGrid" class="grid grid-2 collapsible">
-          <!-- pain 1-5 -->
-          
-          <div><label for="pain1">Pain Q1 (0–4)</label>
-          <select id="pain1"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="pain2">Pain Q2 (0–4)</label>
-          <select id="pain2"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="pain3">Pain Q3 (0–4)</label>
-          <select id="pain3"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="pain4">Pain Q4 (0–4)</label>
-          <select id="pain4"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="pain5">Pain Q5 (0–4)</label>
-          <select id="pain5"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-          <!-- stiffness 1-2 -->
-          
-          <div><label for="stiff1">Stiffness Q1 (0–4)</label>
-          <select id="stiff1"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="stiff2">Stiffness Q2 (0–4)</label>
-          <select id="stiff2"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-          <!-- function 1-17 -->
-          
-          <div><label for="func1">Function Q1 (0–4)</label>
-          <select id="func1"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func2">Function Q2 (0–4)</label>
-          <select id="func2"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func3">Function Q3 (0–4)</label>
-          <select id="func3"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func4">Function Q4 (0–4)</label>
-          <select id="func4"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func5">Function Q5 (0–4)</label>
-          <select id="func5"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func6">Function Q6 (0–4)</label>
-          <select id="func6"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func7">Function Q7 (0–4)</label>
-          <select id="func7"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func8">Function Q8 (0–4)</label>
-          <select id="func8"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func9">Function Q9 (0–4)</label>
-          <select id="func9"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func10">Function Q10 (0–4)</label>
-          <select id="func10"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func11">Function Q11 (0–4)</label>
-          <select id="func11"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func12">Function Q12 (0–4)</label>
-          <select id="func12"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func13">Function Q13 (0–4)</label>
-          <select id="func13"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func14">Function Q14 (0–4)</label>
-          <select id="func14"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func15">Function Q15 (0–4)</label>
-          <select id="func15"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func16">Function Q16 (0–4)</label>
-          <select id="func16"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="func17">Function Q17 (0–4)</label>
-          <select id="func17"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-        </div>
-
-        <div class="grid grid-2" style="margin-top:0.75rem;">
-          <div>
-            <div class="section-title" style="margin-top:0;">PCS-6</div>
-            <button type="button" id="pcsToggleBtn" class="btn-secondary">Show</button>
-          </div>
-          <div class="small">
-            PCS total: <b id="pcsTotalDisplay">0</b>/24 &nbsp;|&nbsp; Band: <b id="pcsBandDisplay">Low</b>
-          </div>
-        </div>
-
-        <div id="pcsGrid" class="grid grid-2 collapsible">
-          
-          <div><label for="pcs1">PCS Q1 (0–4)</label>
-          <select id="pcs1"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="pcs2">PCS Q2 (0–4)</label>
-          <select id="pcs2"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="pcs3">PCS Q3 (0–4)</label>
-          <select id="pcs3"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="pcs4">PCS Q4 (0–4)</label>
-          <select id="pcs4"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="pcs5">PCS Q5 (0–4)</label>
-          <select id="pcs5"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-
-          <div><label for="pcs6">PCS Q6 (0–4)</label>
-          <select id="pcs6"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
-        </div>
-      </div>
-
-      <!-- Hidden clinician-only fields kept for JS compatibility -->
-      <input type="hidden" id="kl" value="">
-      <input type="hidden" id="metabolic" value="">
-      <input type="hidden" id="prior" value="">
-      <input type="hidden" id="cs12" value="0">
-      <input type="hidden" id="cslife" value="0">
-
-      <div class="step-nav">
-        <button type="button" id="backBtn" class="btn-secondary">Back</button>
-        <button type="button" id="nextBtn" class="btn-primary">Next section</button>
-      </div>
+<div class="step" data-title="Swelling & heat">
+  <h3>Swelling &amp; heat</h3>
+  <div class="grid grid-2">
+    <div><label for="swelling">Does your knee often look swollen or puffy?</label>
+      <select id="swelling"><option value="">--</option><option value="Y">Yes</option><option value="N">No</option></select>
     </div>
+    <div><label for="warmth">Does it ever feel warm or hot to touch?</label>
+      <select id="warmth"><option value="">--</option><option value="Y">Yes</option><option value="N">No</option></select>
+    </div>
+  </div>
+</div>
 
-    <div class="card" id="resultsCard">
-      <h2 style="margin-top:0;">Results</h2>
-      <div id="results"></div>
+<div class="step" data-title="Scans & structure">
+  <h3>Scans &amp; structure</h3>
+  <div class="grid grid-2">
+    <div><label for="pt_xray">Have you had an X-ray or MRI confirming arthritis in this knee?</label>
+      <select id="pt_xray"><option value="">--</option><option value="Y">Yes</option><option value="N">No / Not sure</option></select>
+    </div>
+    <div><label for="pt_severity">If yes, how was the arthritis described?</label>
+      <select id="pt_severity"><option value="">--</option><option value="mild">Mild</option><option value="mildmod">Mild–Moderate</option><option value="mod">Moderate</option><option value="modsev">Moderate–Severe</option><option value="sev">Severe</option></select>
+      <p class="small">Disabled unless you answered “Yes” above.</p>
+    </div>
+    <div><label for="malalign">Has a doctor told you you have knock knees or bowed legs?</label>
+      <select id="malalign"><option value="">--</option><option value="Y">Yes</option><option value="N">No</option></select>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-title="Strength">
+  <h3>Strength</h3>
+  <div class="grid grid-2">
+    <div><label for="quadweak">How difficult is it to stand up from a chair without using your hands?</label>
+      <select id="quadweak"><option value="">--</option><option value="easy">Easy</option><option value="abit">A bit difficult</option><option value="hard">Very difficult</option><option value="cant">I cannot do this without my hands</option></select>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-title="Health">
+  <h3>Health conditions</h3>
+  <p class="small">Tick any that apply.</p>
+  <div class="checkbox-grid">
+    <label class="check"><input type="checkbox" id="com_diabetes"> Diabetes</label>
+    <label class="check"><input type="checkbox" id="com_glaucoma"> Glaucoma / high eye pressure</label>
+    <label class="check"><input type="checkbox" id="com_cvd"> Heart / cardiovascular disease</label>
+    <label class="check"><input type="checkbox" id="com_ckd"> Chronic kidney disease</label>
+    <label class="check"><input type="checkbox" id="com_cld"> Chronic liver disease</label>
+    <label class="check"><input type="checkbox" id="com_raid"> Rheumatoid / inflammatory arthritis</label>
+    <label class="check"><input type="checkbox" id="com_immune"> Immune-suppressing medication</label>
+    <label class="check"><input type="checkbox" id="com_none"> None of the above</label>
+  </div>
+  <div class="grid grid-2">
+    <div><label for="nutr">Nutritional or metabolic risk</label>
+      <select id="nutr"><option value="">--</option><option value="Y">Yes / Possibly</option><option value="N">No</option></select>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-title="Previous injections & questionnaires">
+  <h3>Previous injections</h3>
+  <div class="grid grid-2">
+    <div><label for="pt_cs_response">Have you had steroid injections into this knee before?</label>
+      <select id="pt_cs_response"><option value="">--</option><option value="none">Never</option><option value="good">Yes – they helped</option><option value="poor">Yes – they did not help much</option></select>
+    </div>
+    <div><label for="pt_cs_count">Roughly how many steroid injections have you had into this knee?</label>
+      <select id="pt_cs_count"><option value="">--</option><option value="none">None</option><option value="few">1–2</option><option value="many">3 or more</option></select>
     </div>
   </div>
 
-  <button id="resetFab" class="fab" title="Reset">↺</button>
+  <div id="pt_aspirated_block" style="display:none; margin-top:12px;">
+    <label for="pt_aspirated">If your knee is swollen, does your clinician usually drain fluid before injecting?</label>
+    <select id="pt_aspirated"><option value="">--</option><option value="Y">Yes</option><option value="N">No</option><option value="U">Not sure</option></select>
+  </div>
+
+  <div class="details">
+    <details>
+      <summary>WOMAC (optional)</summary>
+      <p class="small">Answering helps refine predictions.</p>
+      <div class="grid grid-2">
+        <div><label for="pain1">Pain Q1 (0–4)</label>
+        <select id="pain1"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pain2">Pain Q2 (0–4)</label>
+        <select id="pain2"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pain3">Pain Q3 (0–4)</label>
+        <select id="pain3"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pain4">Pain Q4 (0–4)</label>
+        <select id="pain4"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pain5">Pain Q5 (0–4)</label>
+        <select id="pain5"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+        <div><label for="stiff1">Stiffness Q1 (0–4)</label>
+        <select id="stiff1"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="stiff2">Stiffness Q2 (0–4)</label>
+        <select id="stiff2"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+        <div><label for="func1">Function Q1 (0–4)</label>
+        <select id="func1"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func2">Function Q2 (0–4)</label>
+        <select id="func2"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func3">Function Q3 (0–4)</label>
+        <select id="func3"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func4">Function Q4 (0–4)</label>
+        <select id="func4"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func5">Function Q5 (0–4)</label>
+        <select id="func5"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func6">Function Q6 (0–4)</label>
+        <select id="func6"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func7">Function Q7 (0–4)</label>
+        <select id="func7"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func8">Function Q8 (0–4)</label>
+        <select id="func8"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func9">Function Q9 (0–4)</label>
+        <select id="func9"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func10">Function Q10 (0–4)</label>
+        <select id="func10"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func11">Function Q11 (0–4)</label>
+        <select id="func11"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func12">Function Q12 (0–4)</label>
+        <select id="func12"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func13">Function Q13 (0–4)</label>
+        <select id="func13"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func14">Function Q14 (0–4)</label>
+        <select id="func14"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func15">Function Q15 (0–4)</label>
+        <select id="func15"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func16">Function Q16 (0–4)</label>
+        <select id="func16"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="func17">Function Q17 (0–4)</label>
+        <select id="func17"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+      </div>
+    </details>
+
+    <details style="margin-top:12px;">
+      <summary>PCS-6 (optional)</summary>
+      <div class="grid grid-2">
+        <div><label for="pcs1">PCS Q1 (0–4)</label>
+        <select id="pcs1"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pcs2">PCS Q2 (0–4)</label>
+        <select id="pcs2"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pcs3">PCS Q3 (0–4)</label>
+        <select id="pcs3"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pcs4">PCS Q4 (0–4)</label>
+        <select id="pcs4"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pcs5">PCS Q5 (0–4)</label>
+        <select id="pcs5"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pcs6">PCS Q6 (0–4)</label>
+        <select id="pcs6"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+      </div>
+    </details>
+  </div>
+</div>
+
+
+      <div class="step-nav">
+        <button type="button" class="btn btn-secondary" id="backBtn">Back</button>
+        <button type="button" class="btn btn-primary" id="nextBtn">Next section</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Results</h2>
+      <p class="small">After finishing, you’ll be taken to a dedicated results page for easy review and sharing.</p>
+      <a class="btn btn-secondary" href="results.html">Open results page</a>
+    </div>
+  </div>
+
+  <button class="fab" id="resetFab" title="Reset">↺</button>
 
   <script src="common.js"></script>
   <script src="patient.js"></script>
+  <script>document.getElementById('darkToggle').addEventListener('click', toggleTheme);</script>
 </body>
 </html>

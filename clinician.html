@@ -1,256 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Knee OA Injection Decision Support Tool (Clinician Tool)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#2563eb">
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="theme.css">
-  <style>
-    :root { color-scheme: light dark; }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f8fbff;
-      background-image: linear-gradient(#e0efff 1px, transparent 1px),
-                        linear-gradient(90deg, #e0efff 1px, transparent 1px);
-      background-size: 40px 40px;
-      color: #111827;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-    body.dark {
-      background: #020617;
-      background-image: linear-gradient(#1e293b 1px, transparent 1px),
-                        linear-gradient(90deg, #1e293b 1px, transparent 1px);
-      background-size: 40px 40px;
-      color: #e5e7eb;
-    }
-    .header { text-align: center; padding: 1.2rem 1rem 0.5rem; }
-    .header img {
-      width: 140px; height: 140px; border-radius: 50%; object-fit: contain;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.09); background: #ffffff;
-    }
-    body.dark .header img {
-      background: #020617; box-shadow: 0 4px 12px rgba(15,23,42,0.7);
-    }
-    .brand-title {
-      font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
-      margin-top: 0.5rem; color: #6b7280;
-    }
-    body.dark .brand-title { color: #9ca3af; }
-    .title {
-      font-size: 1.4rem; margin-top: 0.15rem; font-weight: 700; color: #111827;
-    }
-    body.dark .title { color: #e5e7eb; }
-    .subtitle { font-size: 0.85rem; color: #4b5563; margin-top: 0.15rem; }
-    body.dark .subtitle { color: #9ca3af; }
-    
-    .mode-hidden { display:none; }
-    .mode-active { border-color:#2563eb; color:#2563eb; font-weight:600; }
-.app { max-width: 900px; margin: 0 auto; padding: 0 1rem 3.5rem; }
-    .card {
-      background: rgba(255,255,255,0.96); border-radius: 16px; padding: 1rem;
-      margin-top: 0.75rem; box-shadow: 0 10px 30px rgba(15,23,42,0.08);
-      backdrop-filter: blur(8px);
-    }
-    body.dark .card {
-      background: rgba(15,23,42,0.96); box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-      border: 1px solid #1f2937;
-    }
-    .grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
-    @media (min-width: 700px) {
-      .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
-    }
-    label {
-      font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 0.2rem;
-      color: #374151;
-    }
-    body.dark label { color: #e5e7eb; }
-    input, select {
-      width: 100%; box-sizing: border-box; padding: 0.45rem 0.5rem;
-      border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.9rem;
-      background: #ffffff; color: #111827;
-    }
-    body.dark input, body.dark select {
-      background: #020617; border-color: #4b5563; color: #e5e7eb;
-    }
-    input:focus, select:focus {
-      outline: none; border-color: #2563eb;
-      box-shadow: 0 0 0 1px rgba(37,99,235,0.2);
-    }
-    body.dark input:focus, body.dark select:focus {
-      border-color: #60a5fa; box-shadow: 0 0 0 1px rgba(96,165,250,0.4);
-    }
-    .primary-btn {
-      margin-top: 1rem; width: 100%; padding: 0.8rem; border-radius: 999px;
-      border: none; font-size: 1rem; font-weight: 600; background: #2563eb;
-      color: #ffffff; display: inline-flex; align-items: center;
-      justify-content: center; gap: 0.4rem; cursor: pointer;
-    }
-    .primary-btn span.icon { font-size: 1.1rem; }
-    .btn-secondary {
-      margin-top: 0.75rem; width: 100%; padding: 0.7rem; border-radius: 999px;
-      border: 1px solid #d1d5db; background: #ffffff; font-size: 0.9rem;
-      font-weight: 500; color: #374151; cursor: pointer;
-    }
-    body.dark .btn-secondary {
-      background: #020617; border-color: #4b5563; color: #e5e7eb;
-    }
-    .toolbar { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
-    .toolbar button { flex: 1 1 48%; }
-    .toggle-dark {
-      position: fixed; top: 0.75rem; right: 0.75rem; z-index: 40;
-      padding: 0.45rem 0.7rem; font-size: 0.8rem; border-radius: 999px;
-      border: 1px solid #d1d5db; background: #ffffff; color: #111827;
-      cursor: pointer;
-    }
-    body.dark .toggle-dark {
-      background: #020617; color: #e5e7eb; border-color: #4b5563;
-    }
-    .result-card {
-      border-radius: 16px; padding: 0.75rem; margin-top: 0.5rem;
-      font-size: 0.9rem; border: 1px solid #e5e7eb;
-    }
-    body.dark .result-card { border-color: #374151; }
-    .cs { border-left: 4px solid #2563eb; }
-    .ha { border-left: 4px solid #059669; }
-    .gel { border-left: 4px solid #7c3aed; }
-    .preferred { box-shadow: 0 0 0 2px #bbf7d0; }
-    body.dark .preferred { box-shadow: 0 0 0 2px #22c55e; }
-    .band-pill {
-      display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 600; margin-left: 0.3rem;
-    }
-    .band-high    { background:#bbf7d0; color:#166534; }
-    .band-mod     { background:#fef9c3; color:#854d0e; }
-    .band-lowmod  { background:#fee2e2; color:#b91c1c; }
-    .band-unlikely{ background:#e5e7eb; color:#374151; }
-    body.dark .band-high    { background:#166534; color:#bbf7d0; }
-    body.dark .band-mod     { background:#854d0e; color:#fef9c3; }
-    body.dark .band-lowmod  { background:#7f1d1d; color:#fee2e2; }
-    body.dark .band-unlikely{ background:#4b5563; color:#e5e7eb; }
-    .warning {
-      margin-top: 0.5rem; font-size: 0.85rem; padding: 0.5rem;
-      border-radius: 10px; background:#fee2e2; color:#991b1b;
-      border: 1px solid #fecaca;
-    }
-    body.dark .warning {
-      background:#7f1d1d; color:#fee2e2; border-color:#b91c1c;
-    }
-    .amber {
-      margin-top: 0.5rem; font-size: 0.85rem; padding: 0.5rem;
-      border-radius: 10px; background:#fef9c3; color:#854d0e;
-      border: 1px solid #fde047;
-    }
-    body.dark .amber {
-      background:#854d0e; color:#fef9c3; border-color:#eab308;
-    }
-    .small { font-size: 0.8rem; color: #6b7280; }
-    body.dark .small { color: #9ca3af; }
-    footer {
-      margin: 1.5rem 0 0.75rem; text-align: center; font-size: 0.75rem;
-      color: #9ca3af;
-    }
-    body.dark footer { color: #6b7280; }
-    .hidden { display: none; }
-    .section-title {
-      font-size: 0.95rem; font-weight: 600; margin-top: 0.75rem;
-      margin-bottom: 0.35rem;
-    }
-    .section-divider {
-      margin-top: 0.75rem; border-top: 1px dashed #d1d5db;
-    }
-    body.dark .section-divider { border-color: #4b5563; }
-    .reset-fab {
-      position: fixed; right: 1rem; bottom: 1rem; width: 52px; height: 52px;
-      border-radius: 50%; border: none; background: #ef4444; color: #ffffff;
-      font-size: 1.3rem; display: flex; align-items: center;
-      justify-content: center; box-shadow: 0 10px 25px rgba(239,68,68,0.5);
-      cursor: pointer; z-index: 30;
-    }
-    body.dark .reset-fab {
-      background:#b91c1c; box-shadow: 0 10px 25px rgba(127,29,29,0.9);
-    }
-    .pcs-grid {
-      display: grid; grid-template-columns: 1fr 90px;
-      gap: 0.35rem 0.5rem; align-items: center;
-    }
-    .pcs-label { font-size: 0.8rem; }
-    .accordion-header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:0.4rem 0; cursor:pointer;
-    }
-    .accordion-header button {
-      border-radius:999px; border:1px solid #d1d5db; padding:0.25rem 0.6rem;
-      font-size:0.75rem; background:#ffffff; cursor:pointer;
-    }
-    body.dark .accordion-header button {
-      background:#020617; border-color:#4b5563; color:#e5e7eb;
-    }
-    .womac-grid {
-      margin-top:0.3rem;
-      display:none;
-      grid-template-columns: 1fr 120px;
-      gap:0.4rem 0.7rem;
-      align-items:center;
-    }
-    .womac-grid.show { display:grid !important; }
-    .womac-item label { font-size:0.8rem; }
-    @media (max-width: 600px) {
-      .womac-grid { grid-template-columns: 1fr; }
-    }
-    @media print {
-      .toggle-dark, #startBtn, .reset-fab, .toolbar button#printBtn {
-        display: none !important;
-      }
-      body { background: #ffffff; background-image: none; }
-    }
-  </style>
-
-<style>
-  .step { display:none; }
-  .step.active { display:block; }
-  .step-nav { display:flex; gap:12px; justify-content:space-between; margin-top:16px; }
-  .stepper-header { margin-bottom:14px; }
-  .stepper-title { font-weight:800; font-size:1.05rem; margin-bottom:6px; }
-  .stepper-progress { width:100%; height:10px; background:rgba(0,0,0,0.08); border-radius:999px; overflow:hidden; }
-  body.dark .stepper-progress { background: rgba(255,255,255,0.12); }
-  .stepper-bar { height:100%; width:0%; background: var(--blue); transition: width .25s ease; }
-  .checkbox-grid { display:grid; grid-template-columns: 1fr; gap:10px; }
-  @media (min-width: 720px) { .checkbox-grid { grid-template-columns: 1fr 1fr; } }
-  .check { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid rgba(0,0,0,0.08); border-radius:12px; }
-  body.dark .check { border-color: rgba(255,255,255,0.16); }
-  .check input { transform: translateY(2px); }
-</style>
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Clinician Decision Support – Knee OA Injections</title>
+  <link rel="stylesheet" href="styles.css"/>
 </head>
-
 <body>
   <div class="topbar">
     <div class="brand">
       <img src="logo.png" class="brand-logo" alt="Logo"/>
       <div>
-        <div class="brand-title">Knee OA Injection Decision Support Tool</div>
-        <div class="brand-sub">Clinician Decision Support – Knee OA Injections</div>
+        <div class="brand-title">Clinician Decision Support – Knee OA Injections</div>
+        <div class="brand-sub">Structured, evidence-informed support for injection choice discussions</div>
       </div>
     </div>
-    <button id="darkToggle" class="btn-secondary">Dark mode</button>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <a class="btn btn-secondary" href="index.html">Home</a>
+      <button class="btn btn-ghost" id="darkToggle">Dark mode</button>
+    </div>
   </div>
 
   <div class="container">
     <div class="card">
-      <h1 style="margin:0 0 0.25rem 0;">Assessment</h1>
-      <p class="small" style="margin-top:0;">Complete each section and tap <b>Next</b>. Calculate at the end.</p>
       <div class="grid grid-3">
-        <button id="startBtn" class="btn-primary">Start assessment</button>
-        <button id="calcBtn" class="btn-primary">Calculate prediction</button>
-        <button id="printBtn" class="btn-secondary">Share / Print PDF</button>
+        <button class="btn btn-primary" id="startBtn">Start assessment</button>
+        <button class="btn btn-primary" id="calcBtn">Finish &amp; view results</button>
+        <button class="btn btn-secondary" id="printBtn">Print</button>
       </div>
-      <div id="amberWarning" class="warning amber" style="display:none;"></div>
-      <div id="csWarning" class="warning amber" style="display:none;"></div>
+      <div id="amberWarning" class="warning" style="display:none;"></div>
     </div>
 
     <div class="card hidden" id="formCard">
@@ -260,263 +38,122 @@
         <div class="small" id="stepCounter"></div>
       </div>
 
-      <div class="step" data-title="Baseline">
-        <div class="section-title">Baseline</div>
-        <div class="grid grid-2">
-          <div>
-            <label for="age">Age (years)</label>
-            <input type="number" id="age" min="18" max="100" />
-          </div>
-          <div>
-            <label for="vas">VAS Pain (0–100)</label>
-            <input type="number" id="vas" min="0" max="100" />
-          </div>
-          <div>
-            <label for="height">Height (cm)</label>
-            <input type="number" id="height" min="100" max="220" />
-          </div>
-          <div>
-            <label for="weight">Weight (kg)</label>
-            <input type="number" id="weight" min="30" max="250" />
-          </div>
-          <div>
-            <label for="bmi">BMI (auto)</label>
-            <input type="number" id="bmi" readonly />
-          </div>
-          <div>
-            <label for="kl">KL grade (1–4)</label>
-            <select id="kl">
-              <option value="">--</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-        </div>
+      
+<div class="step" data-title="Baseline">
+  <h3>Baseline</h3>
+  <div class="grid grid-2">
+    <div><label for="age">Age (years)</label><input id="age" type="number" min="18" max="100"></div>
+    <div><label for="vas">VAS pain (0–100)</label><input id="vas" type="number" min="0" max="100"></div>
+    <div><label for="height">Height (cm)</label><input id="height" type="number" min="100" max="220"></div>
+    <div><label for="weight">Weight (kg)</label><input id="weight" type="number" min="30" max="250"></div>
+    <div><label for="bmi">BMI (auto)</label><input id="bmi" type="number" readonly></div>
+    <div><label for="kl">KL grade (1–4)</label>
+      <select id="kl"><option value="">--</option><option>1</option><option>2</option><option>3</option><option>4</option></select>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-title="Inflammation">
+  <h3>Inflammation</h3>
+  <div class="grid grid-2">
+    <div><label for="synovitis">Synovitis</label>
+      <select id="synovitis"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+    </div>
+    <div><label for="effusion">Effusion</label>
+      <select id="effusion"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+      <p class="small">If effusion is present, aspiration can improve HA / hydrogel durability.</p>
+    </div>
+    <div id="aspiratedBlock" style="display:none;">
+      <label for="aspirated">If effusion present: aspirated immediately prior?</label>
+      <select id="aspirated"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-title="Structure & function">
+  <h3>Structure &amp; function</h3>
+  <div class="grid grid-2">
+    <div><label for="malalign">Malalignment &gt;5°</label>
+      <select id="malalign"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+    </div>
+    <div><label for="quadweak">Quadriceps weakness</label>
+      <select id="quadweak"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-title="Systemic factors">
+  <h3>Systemic factors</h3>
+  <div class="grid grid-2">
+    <div><label for="metabolic">Systemic comorbidity (broad)</label>
+      <select id="metabolic"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+    </div>
+    <div><label for="nutr">Nutritional / metabolic risk</label>
+      <select id="nutr"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+    </div>
+    <div><label for="diabetes">Diabetes</label>
+      <select id="diabetes"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+    </div>
+    <div><label for="glaucoma">Glaucoma</label>
+      <select id="glaucoma"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+    </div>
+  </div>
+</div>
+
+<div class="step" data-title="Injection history & PCS-6">
+  <h3>Injection history</h3>
+  <div class="grid grid-2">
+    <div><label for="firstInj">Is this the first injection?</label>
+      <select id="firstInj"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+    </div>
+    <div><label for="prior">Prior positive response</label>
+      <select id="prior"><option value="">--</option><option value="Y">Y</option><option value="N">N</option></select>
+      <p class="small">Disabled if this is the first injection.</p>
+    </div>
+    <div><label for="cs12">CS injections last 12 months</label><input id="cs12" type="number" min="0" max="10"></div>
+    <div><label for="cslife">CS injections lifetime</label><input id="cslife" type="number" min="0" max="20"></div>
+  </div>
+
+  <div class="details">
+    <details>
+      <summary>PCS-6 (optional)</summary>
+      <p class="small">Higher PCS tends to reduce response to passive interventions.</p>
+      <div class="grid grid-2">
+        <div><label for="pcs1">PCS Q1 (0–4)</label>
+        <select id="pcs1"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pcs2">PCS Q2 (0–4)</label>
+        <select id="pcs2"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pcs3">PCS Q3 (0–4)</label>
+        <select id="pcs3"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pcs4">PCS Q4 (0–4)</label>
+        <select id="pcs4"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pcs5">PCS Q5 (0–4)</label>
+        <select id="pcs5"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+<div><label for="pcs6">PCS Q6 (0–4)</label>
+        <select id="pcs6"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
       </div>
+    </details>
+  </div>
+</div>
 
-      <div class="step" data-title="Inflammation">
-        <div class="section-title">Inflammation</div>
-        <div class="grid grid-2">
-          <div>
-            <label for="synovitis">Synovitis</label>
-            <select id="synovitis">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-          </div>
-          <div>
-            <label for="effusion">Effusion</label>
-            <select id="effusion">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-            <p class="small">If effusion is present, aspiration can improve HA / gel durability.</p>
-          </div>
-          <div id="aspiratedBlock" style="display:none;">
-            <label for="aspirated">If effusion present: aspirated immediately prior?</label>
-            <select id="aspirated">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="step" data-title="Structure & function">
-        <div class="section-title">Structure &amp; function</div>
-        <div class="grid grid-2">
-          <div>
-            <label for="malalign">Malalignment &gt;5°</label>
-            <select id="malalign">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-          </div>
-          <div>
-            <label for="quadweak">Quadriceps weakness</label>
-            <select id="quadweak">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="step" data-title="Systemic factors">
-        <div class="section-title">Systemic factors</div>
-        <div class="grid grid-2">
-          <div>
-            <label for="metabolic">Systemic comorbidity</label>
-            <select id="metabolic">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-          </div>
-          <div>
-            <label for="nutr">Nutritional risk</label>
-            <select id="nutr">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-          </div>
-          <div>
-            <label for="diabetes">Diabetes</label>
-            <select id="diabetes">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-          </div>
-          <div>
-            <label for="glaucoma">Glaucoma</label>
-            <select id="glaucoma">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="step" data-title="Injection history & PCS-6">
-        <div class="section-title">Injection history</div>
-        <div class="grid grid-2">
-          <div>
-            <label for="firstInj">Is this the first injection?</label>
-            <select id="firstInj">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-          </div>
-          <div>
-            <label for="prior">Prior positive response</label>
-            <select id="prior">
-              <option value="">--</option>
-              <option value="Y">Y</option>
-              <option value="N">N</option>
-            </select>
-            <p class="small">Disabled if this is the first injection.</p>
-          </div>
-          <div>
-            <label for="cs12">CS injections last 12 months</label>
-            <input type="number" id="cs12" min="0" max="10" />
-            <p class="small">Disabled if this is the first injection.</p>
-          </div>
-          <div>
-            <label for="cslife">CS injections lifetime</label>
-            <input type="number" id="cslife" min="0" max="20" />
-            <p class="small">Disabled if this is the first injection.</p>
-          </div>
-        </div>
-
-        <div class="section-divider"></div>
-
-        <div class="grid grid-2">
-          <div>
-            <div class="section-title" style="margin-top:0;">PCS-6 (optional)</div>
-            <p class="small">Higher PCS tends to reduce response to passive interventions.</p>
-            <button type="button" id="pcsToggleBtn" class="btn-secondary">Show</button>
-          </div>
-          <div class="small">
-            PCS total: <b id="pcsTotalDisplay">0</b> / 24 &nbsp;|&nbsp; Band: <b id="pcsBandDisplay">Low</b>
-          </div>
-        </div>
-
-        <div id="pcsGrid" class="grid grid-2 collapsible">
-          
-          <div>
-            <label for="pcs1">PCS Q1 (0–4)</label>
-            <select id="pcs1">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="pcs2">PCS Q2 (0–4)</label>
-            <select id="pcs2">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="pcs3">PCS Q3 (0–4)</label>
-            <select id="pcs3">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="pcs4">PCS Q4 (0–4)</label>
-            <select id="pcs4">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="pcs5">PCS Q5 (0–4)</label>
-            <select id="pcs5">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="pcs6">PCS Q6 (0–4)</label>
-            <select id="pcs6">
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
       <div class="step-nav">
-        <button type="button" id="backBtn" class="btn-secondary">Back</button>
-        <button type="button" id="nextBtn" class="btn-primary">Next section</button>
+        <button type="button" class="btn btn-secondary" id="backBtn">Back</button>
+        <button type="button" class="btn btn-primary" id="nextBtn">Next section</button>
       </div>
     </div>
 
-    <div class="card" id="resultsCard">
-      <h2 style="margin-top:0;">Results</h2>
-      <div id="results"></div>
+    <div class="card">
+      <h2>Results</h2>
+      <p class="small">After finishing, you’ll be taken to a dedicated results page for easy review and sharing.</p>
+      <a class="btn btn-secondary" href="results.html">Open results page</a>
     </div>
   </div>
 
-  <button id="resetFab" class="fab" title="Reset">↺</button>
+  <button class="fab" id="resetFab" title="Reset">↺</button>
 
   <script src="common.js"></script>
   <script src="clinician.js"></script>
+  <script>document.getElementById('darkToggle').addEventListener('click', toggleTheme);</script>
 </body>
 </html>
